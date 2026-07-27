@@ -7,12 +7,7 @@ import {
 } from "./blocks.ts";
 import { handleWhoIsThereAction, whoIsThereBlockActionIds } from "./actions.ts";
 import WhoIsThereDatastore from "../../datastores/who_is_there.ts";
-import {
-  assertOk,
-  createOkChecker,
-  formatSlackDate,
-  today,
-} from "../../../shared/util.ts";
+import { assertOk, formatSlackDate, today } from "../../../shared/util.ts";
 
 /**
  * Custom function that sends a message to the gym channel asking who is
@@ -22,9 +17,7 @@ import {
  */
 export default SlackFunction(
   WhoIsThereFunction,
-  async ({ inputs, client, event, env }) => {
-    const checkOk = createOkChecker(client, env.ADMIN_CHANNEL);
-
+  async ({ inputs, client, event }) => {
     if (inputs.date < today()) {
       assertOk(
         await client.chat.postEphemeral({
@@ -85,13 +78,10 @@ export default SlackFunction(
 
       if (execution_id) {
         // do not assert here since old message already deleted
-        await checkOk(
-          await client.functions.completeSuccess({
-            function_execution_id: execution_id,
-            outputs: {},
-          }),
-          "WhoIsThereFunction - Error completing old execution",
-        );
+        await client.functions.completeSuccess({
+          function_execution_id: execution_id,
+          outputs: {},
+        });
       }
     }
 
@@ -108,48 +98,39 @@ export default SlackFunction(
     const blocks = whoIsThereMergedBlocks(allItems);
 
     // do not assert here since old message already deleted
-    const msgResponse = await checkOk(
-      await client.chat.postMessage({
-        channel: inputs.channel,
-        blocks,
-        // Fallback text to use when rich media can't be displayed (i.e. notifications) as well as for screen readers
-        text: whoIsThereFallbackText(allItems),
-      }),
-      "WhoIsThereFunction - Error sending message",
-    );
+    const msgResponse = await client.chat.postMessage({
+      channel: inputs.channel,
+      blocks,
+      // Fallback text to use when rich media can't be displayed (i.e. notifications) as well as for screen readers
+      text: whoIsThereFallbackText(allItems),
+    });
 
     // persist the new shared message state on every active date
     for (const item of allItems) {
       if (item.date === inputs.date) {
-        checkOk(
-          await client.apps.datastore.put({
-            datastore: WhoIsThereDatastore.name,
-            item: {
-              date: item.date,
-              message_ts: msgResponse.ts,
-              channel_id: inputs.channel,
-              requested_by: item.requested_by,
-              votes: item.votes,
-              execution_id: event.function_execution_id,
-            },
-          }),
-          "WhoIsThereFunction - Error writing to datastore",
-        );
-        continue;
-      }
-
-      checkOk(
-        await client.apps.datastore.update({
+        await client.apps.datastore.put({
           datastore: WhoIsThereDatastore.name,
           item: {
             date: item.date,
             message_ts: msgResponse.ts,
             channel_id: inputs.channel,
+            requested_by: item.requested_by,
+            votes: item.votes,
             execution_id: event.function_execution_id,
           },
-        }),
-        "WhoIsThereFunction - Error updating datastore",
-      );
+        });
+        continue;
+      }
+
+      await client.apps.datastore.update({
+        datastore: WhoIsThereDatastore.name,
+        item: {
+          date: item.date,
+          message_ts: msgResponse.ts,
+          channel_id: inputs.channel,
+          execution_id: event.function_execution_id,
+        },
+      });
     }
 
     // IMPORTANT! Set `completed` to false in order to keep the interactivity

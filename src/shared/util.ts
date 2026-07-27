@@ -27,32 +27,3 @@ export function assertOk<T extends { ok: boolean; error?: string }>(
   }
   return response;
 }
-
-/**
- * Creates a {@link assertOk}-like checker that never throws - use it after a
- * point of no return (e.g. once a previous message was already deleted),
- * where aborting the function would leave things in a worse state than just
- * continuing. On failure, it logs and posts a warning to `adminChannel`
- * instead. Bind `client`/`adminChannel` once per handler, then call the
- * returned function as `checkOk(await client.foo(...), "context")`.
- */
-export function createOkChecker(client: SlackAPIClient, adminChannel: string) {
-  return async function checkOk<T extends { ok: boolean; error?: string }>(
-    response: T,
-    context: string,
-  ): Promise<T> {
-    if (!response.ok) {
-      const message = `${context}: ${response.error}`;
-      console.error(message);
-
-      if (adminChannel) {
-        await client.chat.postMessage({
-          channel: adminChannel,
-          text: `:warning: ${message}`,
-        });
-      }
-    }
-
-    return response;
-  };
-}
