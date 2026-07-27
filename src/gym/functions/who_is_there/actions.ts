@@ -12,9 +12,9 @@ export const whoIsThereBlockActionIds: string[] = [
 
 /**
  * Shared block-actions handler for the "Wer ist da?" buttons/timepicker.
- * All active dates live in a single shared message, and whichever function
- * (WhoIsThereFunction or WhoIsThereDeleteFunction) currently keeps that
- * message's execution open handles its interactions the same way - the date
+ * All active dates live in a single shared message and whichever function
+ * last updated the message keeps the
+ * message's execution open and handles its interactions the same way - the date
  * is resolved from the block_id, not from the owning function's inputs.
  *
  * Failures here only throw (visible via `slack activity --tail`) and never
