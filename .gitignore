@@ -1,4 +1,6 @@
 dist
+cache
 package
+node_modules
 .DS_Store
 .claude/settings.local.json
