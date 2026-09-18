@@ -6,7 +6,7 @@ import { EncodeUrlFunction } from "./src/utility/functions/encode_url/definition
  * https://api.slack.com/automation/manifest
  */
 export default Manifest({
-  name: "Schwerathletik Mannheim Service Bot",
+  name: "Schwerathletik Mannheim Bot",
   description: "Schwerathletik Mannheim Service Bot based on Deno Slack SDK",
   icon: "assets/SAMxDeno.png",
   workflows: [],
