@@ -29,7 +29,7 @@
     ],
   },
   "exclude": ["node_modules"],
-  "lock": false,
+  "lock": true,
   "nodeModulesDir": "auto",
   "tasks": {
     "test": "deno fmt --check && deno lint && deno test --allow-read",
