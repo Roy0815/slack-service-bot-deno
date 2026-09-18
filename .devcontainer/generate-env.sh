@@ -36,7 +36,7 @@ while IFS= read -r line || [[ -n "${line}" ]]; do
     missing=$((missing + 1))
   fi
 
-  printf '%s=%s\n' "${key}" "${value}" >> "${ENV_FILE}"
+  printf '%s="%s"\n' "${key}" "${value}" >> "${ENV_FILE}"
 done < "${ENV_EXAMPLE}"
 
 if [[ "${missing}" -gt 0 ]]; then
