@@ -1,0 +1,22 @@
+{
+  "name": "slack-service-bot-deno",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "lint": "deno lint",
+    "test": "deno task test",
+    "env:dry-run": "node scripts/sync-env-to-slack.js --dry-run",
+    "env:sync": "node scripts/sync-env-to-slack.js",
+    "env:sync-prune": "node scripts/sync-env-to-slack.js --prune"
+  },
+  "devDependencies": {
+    "mermaid": "^11.16.0",
+    "vitepress": "^1.6.4",
+    "vitepress-mermaid-renderer": "^1.1.28"
+  }
+}
