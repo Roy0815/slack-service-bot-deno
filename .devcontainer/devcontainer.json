@@ -6,8 +6,10 @@
         "vscode": {
             "extensions": [
                 "denoland.vscode-deno",
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "zhoucheng0431.vitepress-snippets"
             ]
         }
-    }
+    },
+    "postCreateCommand": "bash .devcontainer/generate-env.sh"
 }
