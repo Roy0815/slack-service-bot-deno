@@ -1,8 +1,13 @@
-import { SlackAPIClient } from "deno-slack-api/types.ts";
-
 export function formatSlackDate(date: string): string {
   const [year, month, day] = date.split("-");
   return `${day}.${month}.${year}`;
+}
+
+export function formatTime(date: Date): string {
+  const dateString = date.toLocaleString("de-DE", {
+    timeZone: "Europe/Berlin",
+  });
+  return dateString.split(", ")[1].slice(0, 5);
 }
 
 export function today(): string {
