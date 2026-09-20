@@ -15,24 +15,29 @@ export const UploadFileToGoogleDriveFunction = DefineFunction({
     properties: {
       file: {
         type: Schema.slack.types.rich_text,
+        title: "Datei",
         description: "In Slack hochgeladene Datei",
       },
       fileURL: {
         type: Schema.types.string,
+        title: "Öffentliche URL",
         description:
-          "Alternative zu 'file': öffentlich erreichbare URL der Datei (muss die Dateiendung enthalten)",
+          "Alternative zu 'Datei': öffentlich erreichbare URL der Datei (muss die Dateiendung enthalten)",
       },
       fileName: {
         type: Schema.types.string,
+        title: "Dateiname",
         description:
           "Name, unter dem die Datei in Google Drive gespeichert wird",
       },
       fileDate: {
         type: Schema.slack.types.date,
+        title: "Datum",
         description: "Optional: Datum, das dem Dateinamen vorangestellt wird",
       },
       driveFolderID: {
         type: Schema.types.string,
+        title: "Drive Ordner ID",
         description: "ID des Google Drive Ordners",
       },
     },
@@ -42,10 +47,12 @@ export const UploadFileToGoogleDriveFunction = DefineFunction({
     properties: {
       driveFileId: {
         type: Schema.types.string,
+        title: "Datei-ID in Google Drive",
         description: "ID der hochgeladenen Datei in Google Drive",
       },
       driveFileURL: {
         type: Schema.types.string,
+        title: "Link zur Datei",
         description: "Link zur hochgeladenen Datei in Google Drive",
       },
     },
