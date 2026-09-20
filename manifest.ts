@@ -1,6 +1,7 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
 import { FormatDateFunction } from "./src/utility/functions/format_date/definition.ts";
 import { EncodeUrlFunction } from "./src/utility/functions/encode_url/definition.ts";
+import { UploadFileToGoogleDriveFunction } from "./src/google_drive/functions/upload_file/definition.ts";
 
 /**
  * https://api.slack.com/automation/manifest
@@ -13,6 +14,7 @@ export default Manifest({
   functions: [
     FormatDateFunction,
     EncodeUrlFunction,
+    UploadFileToGoogleDriveFunction,
   ],
   outgoingDomains: [
     "oauth2.googleapis.com",
