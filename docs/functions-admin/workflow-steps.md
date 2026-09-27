@@ -2,6 +2,29 @@
 
 Custom Functions, die als einzelne Schritte in Slacks Workflow Builder eingebaut werden können, statt einen kompletten Prozess selbst abzubilden.
 
+## Freigabe
+
+Custom Functions sind nach dem Deployment standardmäßig nur für die App-Inhaber (Collaborators) im Workflow Builder sichtbar. Damit andere Mitglieder sie in eigenen Workflows verwenden können, muss der Zugriff pro Function über die Slack CLI freigegeben werden. Referenziert wird die Function dabei über ihre `callback_id` aus der jeweiligen `definition.ts`.
+
+Aktuelle Freigabe einer Function prüfen:
+
+```sh
+slack function access --name utility_format_date --info
+```
+
+Function für alle Mitglieder des Workspaces freigeben:
+
+```sh
+slack function access --name utility_format_date --everyone --grant
+slack function access --name utility_encode_url --everyone --grant
+```
+
+Die Freigabe gilt pro App: Die CLI fragt beim Aufruf ab, ob die lokale Dev-App oder die deployte App gemeint ist.
+
+::: warning
+Functions mit Zugriff auf Mitgliederdaten (z. B. die Stammdaten-Schritte) nicht für alle freigeben, sondern bei den App-Inhabern belassen.
+:::
+
 ## Konfiguration
 
 ### Stammdaten
