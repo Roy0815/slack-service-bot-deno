@@ -1,7 +1,7 @@
 import { UploadFileToGoogleDriveFunction } from "./definition.ts";
 import { SlackFunction } from "deno-slack-sdk/mod.ts";
 import { SlackAPIClient } from "deno-slack-api/types.ts";
-import { assertOk } from "../../../shared/util.ts";
+import { assertOk, errorMessage } from "../../../shared/util.ts";
 import { getGoogleDriveAccessToken } from "../../lib/google_auth.ts";
 import { guessMimeType } from "../../lib/mime_types.ts";
 
@@ -47,7 +47,7 @@ export default SlackFunction(
         outputs: { driveFileId: id, driveFileURL: webViewLink },
       };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorMessage(error);
       return { error: `Google Drive Upload fehlgeschlagen: ${message}` };
     }
   },
