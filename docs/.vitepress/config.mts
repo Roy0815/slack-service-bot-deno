@@ -68,7 +68,9 @@ export default defineConfig({
         text: "Setup",
         link: "/setup/",
         collapsed: false,
-        items: [],
+        items: [
+          { text: "Umgebungen & Secrets", link: "/setup/environments" },
+        ],
       },
     ],
   },

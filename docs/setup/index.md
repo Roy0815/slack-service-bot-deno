@@ -11,12 +11,9 @@ Kurzer Überblick über das bisherige Setup des Bots. Wird nach und nach um Deta
 
 ## Umgebungsvariablen
 
-- Lokal in `.env` gepflegt, für den produktiven Bot per `npm run env:sync` (bzw. `env:dry-run` / `env:sync-prune`) über `scripts/sync-env-to-slack.js` in die Slack App übertragen.
-- Das Skript zielt bewusst nur auf die deployte App: die lokale/dev App nutzt `.env` selbst als Speicher, ein Sync dorthin würde die Werte kaputt schreiben.
-- Wichtige Variablen bisher: `GOOGLE_SERVICE_ACC_EMAIL` / `GOOGLE_SERVICE_ACC_PRIVATE_KEY` (Google Service Account), `SPREADSHEET_ID_MASTERDATA` (Stammdaten-Sheet) sowie `SLACK_BOT_TOKEN` (Google-Drive-Upload).
-- Für GitHub Codespaces werden die Werte als Repository-Secrets unter *Settings → Secrets and variables → Codespaces* hinterlegt; die Secret-Namen müssen exakt den Variablennamen in `.env.example` entsprechen, sonst findet `.devcontainer/generate-env.sh` sie nicht.
-- Beim Erstellen eines Codespace erzeugt genau dieses Skript (per `postCreateCommand`) automatisch die `.env` aus den Codespaces-Secrets. Sie wird dabei komplett überschrieben; fehlt ein Secret, gibt es nur eine Warnung, keinen Abbruch.
-- `slack run` liest lokal weiterhin direkt aus `.env` (egal ob manuell gepflegt oder von `generate-env.sh` erzeugt); für `slack deploy` müssen die Werte weiterhin separat auf die deployte App übertragen werden — dafür `npm run env:sync` verwenden (s. o.), nicht `slack env add` von Hand.
+- Test- und Prod-Werte liegen getrennt: `.env` (Test/Sandbox, gelesen von `slack run`) und `.env.production` (Prod, per `npm run env:sync` in die deployte App übertragen). `.env.example` ist die gemeinsame Liste der benötigten Keys.
+- In GitHub Codespaces erzeugt `.devcontainer/generate-env.sh` beide Dateien bei jedem Container-Build aus den Codespaces-Secrets (`DEV_…` / `PROD_…` / ohne Präfix).
+- Details, Namensschema der Secrets und die Abläufe für Entwicklung und Produktion: [Umgebungen & Secrets](./environments).
 
 ## Google Integration
 
