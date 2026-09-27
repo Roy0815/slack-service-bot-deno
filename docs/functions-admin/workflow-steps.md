@@ -52,6 +52,22 @@ Lädt eine in Slack hochgeladene Datei oder eine öffentlich erreichbare URL in 
 
 Benötigt denselben Google Service Account wie oben (`GOOGLE_SERVICE_ACC_EMAIL`, `GOOGLE_SERVICE_ACC_PRIVATE_KEY`), mit Zugriff auf den jeweiligen Google Drive Ordner.
 
+### Signaturen
+
+::: details Workflow Steps {open}
+
+- Coaching-Vertrag ausfüllen (`coachingContractPreset`)
+- Coaching-Vertrag senden (`sendCoachingRequest`)
+  :::
+
+**Coaching-Vertrag ausfüllen** öffnet ein Formular für einen Coaching-Vertrag. Abgefragt werden Name und Adresse des Coaches, Coaching-Start, Monatsbeitrag sowie die E-Mail-Adressen von Coach und Athlet. Name, Adresse und E-Mail des Coaches lassen sich als persönliches Preset speichern (eins pro Slack-User) und sind beim nächsten Aufruf vorausgefüllt. Benötigt den Input `interactivity`, der Workflow muss also z. B. über einen Button oder Shortcut gestartet werden. Gibt die Vertragswerte als JSON (`documentValues`) sowie die E-Mail-Adressen von Coach und Athlet zurück.
+
+**Coaching-Vertrag senden** füllt die Vertragsvorlage im Signatur-Service (DocuSeal) mit den Werten aus dem vorherigen Schritt aus und erstellt die Signaturanfrage. Nimmt die Vorlagen-ID, die `documentValues` sowie die E-Mail-Adressen von Coach, Athlet und zwei Vorstandsmitgliedern entgegen. Unterschrieben wird in der Reihenfolge Coach → Athlet → Vorstand 1 → Vorstand 2; der Service benachrichtigt jede Partei erst, wenn die vorherige unterschrieben hat. Optional lässt sich der E-Mail-Versand durch DocuSeal abschalten (`sendEmail`, Standard: an). Gibt die ID der Anfrage, die Empfänger und die Signier-Links zurück.
+
+Beide Schritte werden typischerweise hintereinander im selben Workflow eingesetzt.
+
+Benötigt einen DocuSeal API-Key (`DOCUSEAL_API_KEY`). `DOCUSEAL_API_URL` kann leer bleiben und zeigt dann auf den EU-Server (`https://api.docuseal.eu`); für den US-Server `https://api.docuseal.com` eintragen. Die Feld- und Rollennamen der Vorlage in DocuSeal müssen exakt zu `src/signatures/coaching_contract.ts` passen (Felder `firstName`, `lastName`, `street`, `cityPostalcode`, `coachingStartDate`, `monthlyRate`; Rollen `Coach`, `Athlet`, `Vorstand 1`, `Vorstand 2`).
+
 ### Utility
 
 ::: details Workflow Steps {open}
