@@ -1,4 +1,5 @@
-import { SlackAPIClient } from "deno-slack-api/types.ts";
+/** Basic email shape check, shared by every form that collects an address */
+export const EmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function formatSlackDate(date: string): string {
   const [year, month, day] = date.split("-");
@@ -10,6 +11,11 @@ export function today(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${
     String(now.getDate()).padStart(2, "0")
   }`;
+}
+
+/** Unwraps a caught `unknown` into something printable */
+export function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 /**
