@@ -1,5 +1,5 @@
 /**
- * Reads the local .env file and pushes each variable to Slack
+ * Reads the local .env.production file and pushes each variable to Slack
  * via `slack env add <KEY> <VALUE>`.
  *
  * Usage:
@@ -8,16 +8,24 @@
  *   node scripts/sync-env-to-slack.js --dry-run       # show what would happen, no changes
  *   node scripts/sync-env-to-slack.js --only KEY1,KEY2   # only sync specific keys
  *   node scripts/sync-env-to-slack.js --skip KEY1,KEY2   # sync all except these
- *   node scripts/sync-env-to-slack.js --prune         # also remove Slack vars no longer in .env
+ *   node scripts/sync-env-to-slack.js --prune         # also remove Slack vars no longer in the env file
+ *   node scripts/sync-env-to-slack.js --file PATH     # read another env file instead of
+ *                                                      # .env.production
  *   node scripts/sync-env-to-slack.js --app A0XXXXXXX   # target a specific app ID instead of
  *                                                        # the deployed app resolved from
  *                                                        # .slack/apps.json
+ *
+ * Environments are split into two files: .env holds the test/sandbox keys
+ * that `slack run` reads for the local app, .env.production holds the prod
+ * keys this script pushes to the deployed app. Both are generated from
+ * Codespaces secrets by .devcontainer/generate-env.sh.
  *
  * Deployed app only - do not point this at the local/dev app. For a local
  * app, `slack env set` writes straight back into .env (that IS its store,
  * since `slack run` sources vars directly from .env), so running this
  * script against it turns .env into a read-modify-write loop that mangles
- * the values (observed: escape characters doubling on every run).
+ * the values (observed: escape characters doubling on every run). For the
+ * same reason, --file refuses to read .env.
  *
  * The Slack CLI also prompts interactively to pick an app whenever more
  * than one app is registered for the team, which breaks this
@@ -31,7 +39,8 @@ import * as path from "node:path";
 import * as readline from "node:readline";
 import { spawnSync } from "node:child_process";
 
-const ENV_PATH = path.resolve(process.cwd(), ".env");
+const DEFAULT_ENV_PATH = path.resolve(process.cwd(), ".env.production");
+const LOCAL_ENV_PATH = path.resolve(process.cwd(), ".env");
 const SLACK_DIR = path.resolve(process.cwd(), ".slack");
 
 function parseArgs(argv) {
@@ -42,6 +51,7 @@ function parseArgs(argv) {
     yes: false,
     prune: false,
     app: null,
+    file: null,
   };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -58,6 +68,7 @@ function parseArgs(argv) {
         ?.split(",")
         .map((s) => s.trim());
     else if (arg === "--app" || arg === "-a") args.app = argv[++i];
+    else if (arg === "--file" || arg === "-f") args.file = argv[++i];
   }
   return args;
 }
@@ -132,7 +143,11 @@ function getRemoteKeys(appId) {
 
 function parseEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {
-    console.error(`No .env file found at ${filePath}`);
+    console.error(
+      `No env file found at ${filePath}. In a Codespace it is generated ` +
+        "from PROD_* secrets by .devcontainer/generate-env.sh - otherwise " +
+        "create it by hand from .env.example.",
+    );
     process.exit(1);
   }
 
@@ -233,9 +248,21 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Target app: ${appId} (deployed)\n`);
+  const envPath = args.file
+    ? path.resolve(process.cwd(), args.file)
+    : DEFAULT_ENV_PATH;
+  if (envPath === LOCAL_ENV_PATH) {
+    console.error(
+      ".env holds the local/test keys for `slack run` and must not be " +
+        "synced to the deployed app. Use .env.production instead.",
+    );
+    process.exit(1);
+  }
 
-  const vars = parseEnvFile(ENV_PATH);
+  console.log(`Target app: ${appId} (deployed)`);
+  console.log(`Source:     ${path.relative(process.cwd(), envPath)}\n`);
+
+  const vars = parseEnvFile(envPath);
 
   let keys = Object.keys(vars);
   if (args.only)
@@ -273,7 +300,7 @@ async function main() {
   if (args.prune) {
     if (staleKeys.length > 0) {
       console.log(
-        `\nThis will REMOVE ${staleKeys.length} variable(s) from Slack (not present in local .env):`,
+        `\nThis will REMOVE ${staleKeys.length} variable(s) from Slack (not present in ${path.basename(envPath)}):`,
       );
       staleKeys.forEach((k) => console.log(`  - ${k}`));
     } else {
