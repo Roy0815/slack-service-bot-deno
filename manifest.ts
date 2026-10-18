@@ -4,6 +4,7 @@ import { EncodeUrlFunction } from "./src/utility/functions/encode_url/definition
 import { UploadFileToGoogleDriveFunction } from "./src/google_drive/functions/upload_file/definition.ts";
 import { CoachingContractPresetFunction } from "./src/signatures/functions/coaching_contract_preset/definition.ts";
 import { SendCoachingRequestFunction } from "./src/signatures/functions/send_coaching_request/definition.ts";
+import { SubmitExpenseFromMessageFunction } from "./src/expenses/functions/submit_expense_from_message/definition.ts";
 import CoachingPresetsDatastore from "./src/signatures/datastores/coaching_presets.ts";
 
 /**
@@ -20,6 +21,7 @@ export default Manifest({
     UploadFileToGoogleDriveFunction,
     CoachingContractPresetFunction,
     SendCoachingRequestFunction,
+    SubmitExpenseFromMessageFunction,
   ],
   datastores: [CoachingPresetsDatastore],
   outgoingDomains: [
@@ -27,6 +29,8 @@ export default Manifest({
     "www.googleapis.com",
     "sheets.googleapis.com",
     "files.slack.com",
+    // download URLs of email attachments
+    "files-origin.slack.com",
     "docuseal.eu",
     // Both DocuSeal API regions, so switching region only needs
     // DOCUSEAL_API_URL changed - no redeploy of the manifest.
@@ -34,6 +38,11 @@ export default Manifest({
     "api.docuseal.com",
   ],
   botScopes: [
+    "channels:history",
+    "channels:join",
+    "channels:read",
+    "groups:history",
+    "groups:read",
     "commands",
     "chat:write",
     "chat:write.public",
