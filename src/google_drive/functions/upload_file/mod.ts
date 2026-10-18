@@ -16,7 +16,7 @@ type DownloadedFile = {
 
 export default SlackFunction(
   UploadFileToGoogleDriveFunction,
-  async ({ inputs, client, env }) => {
+  async ({ inputs, client, env, token }) => {
     const fileName = inputs.fileDate
       ? `${inputs.fileDate.replace(/-/g, "")} ${inputs.fileName}`
       : inputs.fileName;
@@ -30,8 +30,8 @@ export default SlackFunction(
         ? await downloadPublicFile(inputs.fileURL, fileName)
         : await downloadSlackFile(
           client,
-          env,
-          inputs.file as string,
+          token,
+          inputs.file!,
           fileName,
         );
 
@@ -72,7 +72,8 @@ async function downloadPublicFile(
 
 async function downloadSlackFile(
   client: SlackAPIClient,
-  env: Record<string, string>,
+  /** The function's own token, as passed to its handlers */
+  token: string,
   fileId: string,
   fileName: string,
 ): Promise<DownloadedFile> {
@@ -86,7 +87,7 @@ async function downloadSlackFile(
   const extension = /[^.]*$/.exec(file.name ?? "")?.[0] ?? "";
 
   const downloadResponse = await fetch(file.url_private_download, {
-    headers: { Authorization: `Bearer ${env["SLACK_BOT_TOKEN"]!}` },
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   if (!downloadResponse.ok) {
