@@ -14,9 +14,10 @@ export const UploadFileToGoogleDriveFunction = DefineFunction({
   input_parameters: {
     properties: {
       file: {
-        type: Schema.slack.types.rich_text,
-        title: "Datei",
-        description: "In Slack hochgeladene Datei",
+        // a plain string: Workflow Builder does not show file_id inputs
+        type: Schema.types.string,
+        title: "Datei-ID",
+        description: "ID einer in Slack hochgeladenen Datei",
       },
       fileURL: {
         type: Schema.types.string,
