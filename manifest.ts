@@ -14,6 +14,7 @@ export default Manifest({
   name: "Schwerathletik Mannheim Bot",
   description: "Schwerathletik Mannheim Service Bot based on Deno Slack SDK",
   icon: "assets/SAMxDeno.png",
+  backgroundColor: "#232426",
   workflows: [],
   functions: [
     FormatDateFunction,
