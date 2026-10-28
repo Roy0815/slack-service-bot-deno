@@ -43,7 +43,23 @@ Deno.test("omits the name key for recipients without one", () => {
   });
 
   assertEquals("name" in body.submitters[0], false);
+  assertEquals("metadata" in body.submitters[0], false);
   assertEquals(body.send_email, false);
+});
+
+Deno.test("passes recipient metadata through for the webhook", () => {
+  const body = toCreateSubmissionBody({
+    templateId: "1",
+    sendEmail: true,
+    recipients: [{
+      roleName: "Mitglied",
+      email: "m@example.com",
+      values: {},
+      metadata: { slackId: "U123" },
+    }],
+  });
+
+  assertEquals(body.submitters[0].metadata, { slackId: "U123" });
 });
 
 Deno.test("rejects a template id that is not a positive integer", () => {

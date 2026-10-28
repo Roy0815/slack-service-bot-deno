@@ -21,6 +21,11 @@ export type SignatureRecipient = {
   name?: string;
   /** Pre-filled values for this party's fields, keyed by field name */
   values: Record<string, SignatureValue>;
+  /**
+   * Not shown in the document - handed back unchanged in the service's
+   * webhook, e.g. to tell which Slack user a completed form belongs to
+   */
+  metadata?: Record<string, string>;
 };
 
 export type CreateSubmissionInput = {

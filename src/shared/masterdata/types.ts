@@ -103,6 +103,15 @@ export const userJoiningFields: (keyof UserJoiningDetails)[] = [
   "signingDate",
 ];
 
+export interface UserBankDetails {
+  IBAN: string;
+  BIC: string;
+  /** Empty when the member owns the account themselves */
+  accountOwner?: string;
+  /** DD.MM.YYYY - date the new SEPA mandate was signed */
+  signingDate?: string;
+}
+
 export interface UserJoiningReturn {
   mandateReference: string;
   recurringAmount: string;
@@ -127,4 +136,5 @@ export interface MasterdataService {
   saveSlackId(id: number, slackId: string): Promise<void>;
   saveLeaveDate(ids: UserIds, leaveDate: string): Promise<void>;
   saveNewMember(details: UserJoiningDetails): Promise<UserJoiningReturn>;
+  saveBankDetails(ids: UserIds, details: UserBankDetails): Promise<void>;
 }

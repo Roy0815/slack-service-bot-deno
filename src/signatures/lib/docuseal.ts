@@ -23,6 +23,7 @@ type DocuSealSubmitterParams = {
   email: string;
   name?: string;
   values: Record<string, unknown>;
+  metadata?: Record<string, string>;
 };
 
 export type DocuSealCreateSubmissionBody = {
@@ -63,6 +64,7 @@ export function toCreateSubmissionBody(
       email: recipient.email,
       ...(recipient.name ? { name: recipient.name } : {}),
       values: recipient.values,
+      ...(recipient.metadata ? { metadata: recipient.metadata } : {}),
     })),
   };
 }

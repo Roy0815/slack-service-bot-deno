@@ -3,6 +3,7 @@ import type {
   ApprovalObject,
   MasterdataService,
   User,
+  UserBankDetails,
   UserContactCard,
   UserIds,
   UserJoiningDetails,
@@ -383,6 +384,44 @@ export function createGoogleSheetsMasterdataService(
     };
   }
 
+  async function saveBankDetails(
+    ids: UserIds,
+    details: UserBankDetails,
+  ): Promise<void> {
+    const user = await getUserFromId(ids);
+    if (!user) {
+      throw new Error("Mitglied nicht in den Stammdaten gefunden");
+    }
+
+    // same rule as saveNewMember: the member's own name means "no
+    // differing account owner"
+    const accountOwner =
+      details.accountOwner === `${user.firstname} ${user.lastname}`
+        ? ""
+        : details.accountOwner ?? "";
+
+    const values: Partial<Record<keyof typeof bankDatenColumns, string>> = {
+      IBAN: details.IBAN,
+      BIC: details.BIC,
+      // always written, so a previous differing owner gets cleared
+      accountOwner,
+      ...(details.signingDate ? { signingDate: details.signingDate } : {}),
+    };
+
+    // "SEPA Daten" rows line up with "Allg Daten" rows (see saveNewMember)
+    await Promise.all(
+      (Object.keys(values) as (keyof typeof bankDatenColumns)[]).map((key) =>
+        sheets.updateCell(
+          spreadsheetId,
+          `'${bankDatenSheetName}'!${
+            convertNumberToColumn(bankDatenColumns[key])
+          }${user.id + 1}`,
+          [[values[key]]],
+        )
+      ),
+    );
+  }
+
   return {
     getUserFromId,
     getUserFromEmail,
@@ -393,5 +432,6 @@ export function createGoogleSheetsMasterdataService(
     saveSlackId,
     saveLeaveDate,
     saveNewMember,
+    saveBankDetails,
   };
 }

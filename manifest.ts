@@ -6,6 +6,9 @@ import { CoachingContractPresetFunction } from "./src/signatures/functions/coach
 import { SendCoachingRequestFunction } from "./src/signatures/functions/send_coaching_request/definition.ts";
 import { SubmitExpenseFromMessageFunction } from "./src/expenses/functions/submit_expense_from_message/definition.ts";
 import { SetLeaveDateFunction } from "./src/masterdata/functions/set_leave_date/definition.ts";
+import { RequestBankChangeFunction } from "./src/masterdata/functions/request_bank_change/definition.ts";
+import { SendBankChangeFormFunction } from "./src/masterdata/functions/send_bank_change_form/definition.ts";
+import { SaveBankDetailsFunction } from "./src/masterdata/functions/save_bank_details/definition.ts";
 import CoachingPresetsDatastore from "./src/signatures/datastores/coaching_presets.ts";
 
 /**
@@ -25,6 +28,9 @@ export default Manifest({
     SendCoachingRequestFunction,
     SubmitExpenseFromMessageFunction,
     SetLeaveDateFunction,
+    RequestBankChangeFunction,
+    SendBankChangeFormFunction,
+    SaveBankDetailsFunction,
   ],
   datastores: [CoachingPresetsDatastore],
   outgoingDomains: [
