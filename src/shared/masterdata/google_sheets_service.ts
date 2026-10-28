@@ -387,7 +387,7 @@ export function createGoogleSheetsMasterdataService(
   async function saveBankDetails(
     ids: UserIds,
     details: UserBankDetails,
-  ): Promise<void> {
+  ): Promise<User> {
     const user = await getUserFromId(ids);
     if (!user) {
       throw new Error("Mitglied nicht in den Stammdaten gefunden");
@@ -420,6 +420,8 @@ export function createGoogleSheetsMasterdataService(
         )
       ),
     );
+
+    return user;
   }
 
   return {

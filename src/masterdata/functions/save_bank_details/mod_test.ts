@@ -44,7 +44,10 @@ Deno.test("writes the normalized bank details into the member's SEPA row", async
       }),
     );
 
-    assertEquals(result.outputs, {});
+    assertEquals(result.outputs, {
+      firstname: "Max",
+      lastname: "Mustermann",
+    });
 
     const updates = Object.fromEntries(
       stub.calls

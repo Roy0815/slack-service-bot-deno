@@ -136,5 +136,6 @@ export interface MasterdataService {
   saveSlackId(id: number, slackId: string): Promise<void>;
   saveLeaveDate(ids: UserIds, leaveDate: string): Promise<void>;
   saveNewMember(details: UserJoiningDetails): Promise<UserJoiningReturn>;
-  saveBankDetails(ids: UserIds, details: UserBankDetails): Promise<void>;
+  /** Returns the member the details were saved for */
+  saveBankDetails(ids: UserIds, details: UserBankDetails): Promise<User>;
 }

@@ -36,7 +36,18 @@ export const SaveBankDetailsFunction = DefineFunction({
     required: ["user", "IBAN", "BIC"],
   },
   output_parameters: {
-    properties: {},
-    required: [],
+    properties: {
+      firstname: {
+        type: Schema.types.string,
+        title: "Vorname",
+        description: "Vorname des Mitglieds laut Stammdaten",
+      },
+      lastname: {
+        type: Schema.types.string,
+        title: "Nachname",
+        description: "Nachname des Mitglieds laut Stammdaten",
+      },
+    },
+    required: ["firstname", "lastname"],
   },
 });
