@@ -11,14 +11,14 @@ export default defineConfig({
       "link",
       {
         rel: "icon",
-        href: "/slack-service-bot/favicon.ico",
+        href: "/slack-service-bot-deno/favicon.ico",
       },
     ],
     [
       "link",
       {
         rel: "shortcut icon",
-        href: "/slack-service-bot/favicon.ico",
+        href: "/slack-service-bot-deno/favicon.ico",
       },
     ],
   ],
@@ -43,35 +43,90 @@ export default defineConfig({
       text: "Auf GitHub editieren",
     },
     nav: [
-      { text: "Home", link: "/" },
-      { text: "Funktionen", link: "/functions/", activeMatch: "/functions/" },
-      { text: "Setup", link: "/setup/", activeMatch: "/setup/" },
-    ],
-    sidebar: [
       {
-        text: "Funktionen",
-        link: "/functions/",
-        collapsed: false,
-        items: [
-          { text: "Wer ist da?", link: "/functions/gym" },
-        ],
+        text: "Anleitung",
+        link: "/anleitung/mitglieder",
+        activeMatch: "/anleitung/",
       },
+      { text: "Technische Doku", link: "/technik/", activeMatch: "/technik/" },
       {
-        text: "Funktionen Admins",
-        link: "/functions-admin/",
-        collapsed: false,
-        items: [
-          { text: "Workflow Schritte", link: "/functions-admin/workflow-steps" },
-        ],
-      },
-      {
-        text: "Setup",
-        link: "/setup/",
-        collapsed: false,
-        items: [
-          { text: "Umgebungen & Secrets", link: "/setup/environments" },
-        ],
+        text: "GitHub",
+        link: "https://github.com/Roy0815/slack-service-bot-deno",
       },
     ],
+    // Anleitung: je eine Seite für Mitglieder und Admins, beide Gruppen immer
+    // sichtbar; die Einträge springen zu den Abschnitten der Seite
+    sidebar: {
+      "/anleitung/": [
+        {
+          text: "Anleitung Mitglieder",
+          link: "/anleitung/mitglieder",
+          collapsed: false,
+          items: [
+            {
+              text: "Rechnung einreichen",
+              link: "/anleitung/mitglieder#rechnung-einreichen",
+            },
+            {
+              text: "Kontodaten ändern",
+              link: "/anleitung/mitglieder#kontodaten-aendern",
+            },
+            {
+              text: "Coaching-Vertrag",
+              link: "/anleitung/mitglieder#coaching-vertrag",
+            },
+            {
+              text: "Eigene Workflows",
+              link: "/anleitung/mitglieder#eigene-workflows",
+            },
+          ],
+        },
+        {
+          text: "Anleitung Admins",
+          link: "/anleitung/admins",
+          collapsed: false,
+          items: [
+            { text: "Überblick", link: "/anleitung/admins#ueberblick" },
+            {
+              text: "Coaching-Vertrag",
+              link: "/anleitung/admins#coaching-vertrag",
+            },
+            {
+              text: "Rechnung einreichen",
+              link: "/anleitung/admins#rechnung-einreichen",
+            },
+            {
+              text: "Rechnung aus Nachricht",
+              link: "/anleitung/admins#rechnung-aus-nachricht",
+            },
+            {
+              text: "Kontodaten ändern",
+              link: "/anleitung/admins#kontodaten-aendern",
+            },
+            { text: "Austritt einplanen", link: "/anleitung/admins#austritt" },
+            {
+              text: "Google Drive Ablage",
+              link: "/anleitung/admins#google-drive",
+            },
+            {
+              text: "Datum & URL Bausteine",
+              link: "/anleitung/admins#bausteine",
+            },
+          ],
+        },
+      ],
+      "/technik/": [
+        {
+          text: "Technische Doku",
+          link: "/technik/",
+          items: [
+            { text: "Bot einrichten", link: "/technik/bot-einrichten" },
+            { text: "Umgebungen & Secrets", link: "/technik/umgebungen" },
+            { text: "Freigabe von Schritten", link: "/technik/freigaben" },
+            { text: "Referenz Workflow-Schritte", link: "/technik/referenz" },
+          ],
+        },
+      ],
+    },
   },
 });

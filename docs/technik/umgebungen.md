@@ -11,7 +11,7 @@ Der Bot läuft in zwei Umgebungen: als lokale Dev-App (`slack run`) mit Test-/Sa
 | `.env.production` | Prod-Keys, gitignored                                 | `scripts/sync-env-to-slack.js` (`npm run env:sync`, `env:dry-run`, `env:sync-prune`) pusht sie per `slack env add` in die deployte App                       |
 
 - `.env.example` ist die einzige Stelle, an der die benötigten Keys gepflegt werden. Kommt eine neue Variable dazu, wird sie dort eingetragen und gilt dann für beide Dateien.
-- Wichtige Variablen bisher: `GOOGLE_SERVICE_ACC_EMAIL` / `GOOGLE_SERVICE_ACC_PRIVATE_KEY` (Google Service Account), `SPREADSHEET_ID_MASTERDATA` (Stammdaten-Sheet) sowie `SLACK_BOT_TOKEN` (Google-Drive-Upload).
+- Variablen bisher: `GOOGLE_SERVICE_ACC_EMAIL` / `GOOGLE_SERVICE_ACC_PRIVATE_KEY` (Google Service Account) , `SPREADSHEET_ID_MASTERDATA` (Stammdaten-Sheet) sowie `DOCUSEAL_API_KEY` / `DOCUSEAL_API_URL` (Signatur-Service). Welche Function welche Variable braucht, steht in der [Referenz](./referenz).
 
 ```mermaid
 flowchart LR
