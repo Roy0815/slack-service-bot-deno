@@ -9,7 +9,7 @@ export default SlackFunction(
   ({ inputs }) => {
     return {
       outputs: {
-        encodedString: encodeURI(inputs.input),
+        encodedString: encodeURIComponent(inputs.input),
       },
     };
   },

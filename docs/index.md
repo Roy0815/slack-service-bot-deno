@@ -8,8 +8,11 @@ hero:
   tagline: Slack Bot für administrative Aufgaben innerhalb Schwerathletik Mannheim 2018 e.V.
   actions:
     - theme: brand
-      text: Funktionen
-      link: /functions
+      text: Anleitung
+      link: /anleitung/mitglieder
+    - theme: alt
+      text: Technische Doku
+      link: /technik/
     - theme: alt
       text: GitHub
       link: https://github.com/Roy0815/slack-service-bot-deno
@@ -19,10 +22,10 @@ hero:
     alt: "Schwerathletik Mannheim Logo"
 
 features:
-  - title: Wer ist da?
-    details: Abfrage, wer an einem bestimmten Tag in der Trainingsstätte trainiert
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Rechnung einreichen
+    details: Belege in Slack einreichen, vom Vorstand genehmigen lassen und automatisch in Google Drive ablegen.
+    link: /anleitung/mitglieder#rechnung-einreichen
+  - title: Kontodaten ändern
+    details: Neues SEPA-Mandat digital unterschreiben, der Vorstand genehmigt und die Daten werden automatisch gepflegt.
+    link: /anleitung/mitglieder#kontodaten-aendern
 ---

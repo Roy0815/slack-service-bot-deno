@@ -10,7 +10,6 @@ const { createContext } = SlackFunctionTester(UploadFileToGoogleDriveFunction);
 async function testEnv() {
   return {
     ...(await createTestGoogleServiceAccountEnv()),
-    SLACK_BOT_TOKEN: "xoxb-test",
   };
 }
 
