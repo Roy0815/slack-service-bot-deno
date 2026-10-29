@@ -5,9 +5,14 @@ html.dark {
   --actor-fill: #1f2020;
 }
 
+/* Diagramm in Breite und Höhe einpassen: der Container des Renderers ist auf
+   50vh begrenzt und schneidet hohe Diagramme sonst unten ab */
 .mermaid > svg {
-  width: 100%;
+  width: auto;
   height: auto;
+  max-width: 100%;
+  max-height: calc(50vh - 2rem);
+  margin: 0 auto;
 }
 
 g[data-actor-index="1"] rect {
