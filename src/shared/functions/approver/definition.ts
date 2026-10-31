@@ -62,9 +62,16 @@ export const ApproverFunction = DefineFunction({
         type: Schema.types.string,
         title: "Zeitstempel der Freigabe-Nachricht",
       },
+      interactivity: {
+        type: Schema.slack.types.interactivity,
+        title: "Interaktivität",
+        description:
+          "Klick auf Freigeben, z. B. um danach ein Popup für die freigebende Person zu öffnen",
+      },
     },
     required: [
       "approver",
+      "interactivity",
       "approvalMessage",
       "approvalMessageLink",
       "approvalMessageTs",

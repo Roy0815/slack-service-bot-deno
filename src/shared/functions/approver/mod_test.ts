@@ -156,7 +156,7 @@ Deno.test("main handler posts the request as a thread reply broadcast to the cha
   }
 });
 
-Deno.test("approve resolves immediately: updates the message and completes with the approver and the approval message", async () => {
+Deno.test("approve resolves immediately: updates the message and completes with the approver, the approval message and the click's interactivity", async () => {
   const stub = stubFetch({
     responses: {
       "chat.update": { ok: true },
@@ -176,8 +176,9 @@ Deno.test("approve resolves immediately: updates the message and completes with 
       approvalMessage: { channel_id: "C_APPROVERS", message_ts: "1.1" },
       approvalMessageLink: approvalLink,
       approvalMessageTs: "1.1",
+      interactivity: { interactivity_pointer: "pointer-1" },
     });
-    // nothing delays the completion
+    // nothing may delay the completion, the interactivity expires quickly
     assertEquals(
       stub.calls.findIndex((call) =>
         call.url.includes("functions.completeSuccess")

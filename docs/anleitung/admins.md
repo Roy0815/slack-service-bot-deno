@@ -190,7 +190,7 @@ Allgemeiner Schritt für jeden Workflow, in dem jemand etwas freigeben muss. Er 
 | **Thread-Nachricht** | Optional: Link zu einer Nachricht im Freigabe-Channel, z. B. die Variable *Link zur Nachricht* aus einem vorherigen „Nachricht senden“-Schritt mit der Datei aus dem Formular. Die Anfrage erscheint dann als Antwort in deren Thread und zusätzlich im Channel, die Datei steht also nur einmal im Channel |
 | **Anfragende Person** | Optional: wer bei einer Ablehnung per DM benachrichtigt wird, meist die Person, die den Workflow gestartet hat |
 
-Ausgaben: **Freigegeben von** (die Person, die freigegeben hat) und die **Freigabe-Nachricht**, als Nachricht, *Link zur Freigabe-Nachricht* und *Zeitstempel der Freigabe-Nachricht*. Damit kann z. B. ein [To-Do](#todos) auf die Freigabe verweisen oder ein späterer Schritt im Thread antworten.
+Ausgaben: **Freigegeben von** (die Person, die freigegeben hat) und die **Freigabe-Nachricht**, als Nachricht, *Link zur Freigabe-Nachricht* und *Zeitstempel der Freigabe-Nachricht*. Damit kann z. B. ein [To-Do](#todos) auf die Freigabe verweisen oder ein späterer Schritt im Thread antworten. Dazu kommt die **Interaktivität** des Klicks auf **Freigeben**: Damit kann der nächste Schritt ein Popup öffnen, z. B. ein Formular, das die freigebende Person direkt nach der Freigabe ausfüllt. Das Popup muss der unmittelbar folgende Schritt sein, weil die Interaktivität nach wenigen Sekunden abläuft.
 
 **Freigeben:** Die Nachricht zeigt, wer wann freigegeben hat, und der Workflow läuft mit dem nächsten Schritt weiter.
 

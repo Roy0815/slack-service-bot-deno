@@ -44,8 +44,9 @@ export default SlackFunction(
         "ApproverFunction - Error posting approval message",
       );
 
-      // fetched now rather than on approval, so the click can complete
-      // the step right away
+      // fetched now rather than on approval: the click must complete the
+      // step quickly, as the interactivity it hands on expires within
+      // seconds
       const location = {
         channel: inputs.approverChannel,
         ts: posted.ts as string,
@@ -110,6 +111,7 @@ export default SlackFunction(
       approved: true,
       userId: body.user.id,
       messageLink: action.value ?? "",
+      interactivity: body.interactivity,
     });
 
     if (!decided) {
@@ -167,6 +169,7 @@ async function resolveApproval(
     userId,
     reason,
     messageLink,
+    interactivity,
   }: {
     location: MessageLocation;
     // deno-lint-ignore no-explicit-any
@@ -178,6 +181,9 @@ async function resolveApproval(
     reason?: string;
     /** approval only: link stored in the Freigeben button */
     messageLink?: string;
+    /** approval only: the click, handed on to the next step */
+    // deno-lint-ignore no-explicit-any
+    interactivity?: any;
   },
 ): Promise<boolean> {
   // ending with an error is what stops the remaining workflow steps
@@ -192,6 +198,7 @@ async function resolveApproval(
         },
         approvalMessageLink: messageLink ?? "",
         approvalMessageTs: location.ts,
+        interactivity,
       },
     })
     : await client.functions.completeError({

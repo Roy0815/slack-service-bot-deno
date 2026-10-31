@@ -98,8 +98,8 @@ Quellcode: `src/shared/functions/approver/`
 Allgemeiner Freigabe-Schritt. Postet `text` mit den Buttons **Freigeben** und **Ablehnen** in den Channel (mit `threadMessageLink` als Antwort im Thread dieser Nachricht, `reply_broadcast: true`) und bleibt offen (`completed: false`), bis jemand entscheidet. Danach wird die Nachricht ohne Buttons neu aufgebaut, mit Entscheidung, Person, Uhrzeit und Datum (Europe/Berlin) als Context-Block, beginnend mit :white_check_mark: bzw. :x:.
 
 - **Reihenfolge:** Bei jeder Entscheidung wird der Schritt **zuerst** abgeschlossen (`completeSuccess` bzw. `completeError`). Slack akzeptiert nur das erste Abschließen einer Execution, dieser Aufruf entscheidet also zwischen gleichzeitigen Klicks. Erst danach folgen DM und `chat.update`. Wer zu spät ist, bekommt "Über diese Anfrage wurde bereits von jemand anderem entschieden": beim Freigeben per `chat.postEphemeral`, beim Ablehnen als Fehler im Grund-Popup (`response_action: "errors"`). Weitere Aktionen gibt es dann nicht.
-- **Freigeben:** `completeSuccess` mit `approver` und der Freigabe-Nachricht, dann Nachricht aktualisieren. Ausgaben gibt es nur bei einer Freigabe, eine Ablehnung bricht den Workflow ab.
-- **Link:** Direkt nach dem Posten holt der Schritt den Link per `chat.getPermalink` und legt ihn per `chat.update` als `value` in den Freigeben-Button. So schließt der Klick den Schritt ohne weiteren API-Aufruf ab. Liefert Slack keinen Link, bleibt die Ausgabe leer.
+- **Freigeben:** `completeSuccess` mit `approver`, der Freigabe-Nachricht und `interactivity` des Klicks, dann Nachricht aktualisieren. Ausgaben gibt es nur bei einer Freigabe, eine Ablehnung bricht den Workflow ab.
+- **Link:** Direkt nach dem Posten holt der Schritt den Link per `chat.getPermalink` und legt ihn per `chat.update` als `value` in den Freigeben-Button. So schließt der Klick den Schritt ohne weiteren API-Aufruf ab, denn das weitergegebene `interactivity` ist nur wenige Sekunden gültig. Liefert Slack keinen Link, bleibt die Ausgabe leer.
 - **Ablehnen:** Popup mit optionalem Grund. Nach dem Absenden `completeError` mit "Anfrage abgelehnt von <@…>. Grund: …", das bricht den Workflow ab. Dann bekommt `requester` (falls gesetzt) eine DM mit Ablehnung und Grund, darunter der Originaltext klein als Context-Block. Weil Context-Blöcke kein Rich Text annehmen, wird `text` dafür in mrkdwn umgewandelt (`richTextToMrkdwn`, max. 3000 Zeichen). Schlägt die DM fehl, postet der Bot einen Hinweis in den Thread der Anfrage (bzw. in den Thread von `threadMessageLink`) mit `reply_broadcast: true`, damit er auch im Channel erscheint ("bitte persönlich informieren"). Zuletzt wird die Nachricht aktualisiert.
 - Schließen des Grund-Popups lässt die Buttons stehen.
 - **Text:** Der Workflow Builder liefert `text` als Block vom Typ `expanded_rich_text`, den `chat.postMessage` ablehnt (`invalid_blocks`). Er wird deshalb als `rich_text` gepostet. In eingefügten Variablen werden `<@U…>`, `<#C…>` und `` `Code` `` in echte Erwähnungen bzw. Code-Formatierung umgewandelt, anderes mrkdwn bleibt als Text stehen.
@@ -118,6 +118,7 @@ Allgemeiner Freigabe-Schritt. Postet `text` mit den Buttons **Freigeben** und **
 | `approvalMessage` | `slack#/types/message_context` | Freigabe-Nachricht, z. B. für die Nachricht eines Listenelements oder um im Thread zu antworten |
 | `approvalMessageLink` | `string` | Link zur Freigabe-Nachricht, leer wenn Slack ihn nicht liefert |
 | `approvalMessageTs` | `string` | Zeitstempel der Freigabe-Nachricht |
+| `interactivity` | `slack#/types/interactivity` | Klick auf **Freigeben**. Damit kann der nächste Schritt ein Popup für die freigebende Person öffnen |
 
 Keine Umgebungsvariablen. Bot-Scopes: `chat:write`.
 
