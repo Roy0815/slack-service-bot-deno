@@ -5,6 +5,7 @@ Hier steht, wie du die Funktionen des Bots in Slack benutzt.
 | Funktion | Für wen | Beschreibung |
 | --- | --- | --- |
 | [Rechnung einreichen](#rechnung-einreichen) | alle Mitglieder | Ausgaben für den Verein mit Beleg einreichen |
+| [Stammdaten ändern](#stammdaten-aendern) | alle Mitglieder | Name, E-Mail, Telefonnummer oder Adresse in deinen Mitgliedsdaten ändern |
 | [Kontodaten ändern](#kontodaten-aendern) | alle Mitglieder | Neues SEPA-Mandat für den Mitgliedsbeitrag digital unterschreiben |
 | [Coaching-Vertrag](#coaching-vertrag) | Vereinscoaches | Coaching-Vertrag in Slack ausfüllen und digital unterschreiben lassen |
 | [Eigene Workflows](#eigene-workflows) | alle Mitglieder | Bausteine "Datum formatieren" und "URL kodieren" in eigenen Slack-Workflows verwenden |
@@ -32,6 +33,35 @@ Du hast etwas für den Verein gekauft oder eine Rechnung erhalten, die der Verei
 2. Der Beleg wird automatisch benannt und in der Ablage des Vereins gespeichert.
 3. Der Vorstand bekommt eine Aufgabe, die Rechnung zu bezahlen bzw. dir dein Geld zu überweisen.
 
+## Stammdaten ändern {#stammdaten-aendern}
+
+Du bist umgezogen, hast eine neue E-Mail-Adresse oder Telefonnummer oder dein Name hat sich geändert? Dann änderst du deine Mitgliedsdaten mit dem Workflow **Stammdaten ändern**. Der Vorstand gibt die Änderung frei, danach wird sie gespeichert.
+
+### So geht's {#stammdaten-so-gehts}
+
+1. Den Link zum Workflow **Stammdaten ändern** in Slack öffnen und starten.
+2. Es öffnet sich das Popup **Stammdaten ändern**. Nach einem kurzen Moment stehen deine aktuellen Daten grau in den Feldern.
+3. **Nur die Felder ausfüllen, die sich ändern sollen.** Leere Felder bleiben unverändert. Ändern kannst du:
+   - Vorname, Nachname
+   - E-Mail
+   - Telefonnummer im Format `+49162123456` oder `0162123456`, ohne Leerzeichen
+   - Straße, Hausnummer, Stadt, Postleitzahl
+4. **Speichern.** Du bekommst eine Nachricht vom Bot mit deinen Änderungen (alt ➡️ neu) und dem Hinweis, dass sie zur Freigabe weitergeleitet wurden.
+
+### Was danach passiert {#stammdaten-danach}
+
+1. Der Vorstand bekommt deine Änderungen und **gibt sie frei** oder **lehnt sie ab**.
+2. Freigegeben: Deine Daten werden gespeichert und du bekommst eine Nachricht vom Bot.
+3. Abgelehnt: Du bekommst eine Nachricht vom Bot, wer abgelehnt hat und ggf. warum. Gespeichert wird nichts.
+
+### Gut zu wissen {#stammdaten-gut-zu-wissen}
+
+- **"Du bist nicht als Mitglied registriert":** Dein Slack-Konto ist noch nicht mit deinen Mitgliedsdaten verknüpft. Melde dich beim Vorstand.
+- **Fehlermeldung am Feld:** Die Telefonnummer muss mit `+` oder `0` beginnen und darf nur Ziffern enthalten. Hast du nichts geändert, weist dich das Popup ebenfalls darauf hin.
+- **Feld leeren geht nicht:** Ein leeres Feld bedeutet "nicht ändern". Soll ein Wert ganz gelöscht werden, wende dich an den Vorstand.
+- **Kontodaten** (IBAN, BIC) änderst du nicht hier, sondern mit [Kontodaten ändern](#kontodaten-aendern).
+- **Abbrechen:** Schließt du das Popup, wird nichts verschickt.
+
 ## Kontodaten ändern {#kontodaten-aendern}
 
 Du hast ein neues Konto und der Mitgliedsbeitrag soll ab einem bestimmten Datum von dort abgebucht werden? Dafür brauchst du ein neues SEPA-Lastschriftmandat, das du digital unterschreibst.
@@ -52,7 +82,7 @@ Du hast ein neues Konto und der Mitgliedsbeitrag soll ab einem bestimmten Datum 
 
 ### Gut zu wissen {#kontodaten-gut-zu-wissen}
 
-- **Falsche oder fehlende E-Mail-Adresse:** Das Formular geht aus Sicherheitsgründen immer nur an die Adresse aus deinen Mitgliedsdaten. Ist sie falsch oder fehlt, zuerst die Mitgliedsdaten ändern lassen. Sobald das genehmigt ist, den Workflow erneut starten.
+- **Falsche oder fehlende E-Mail-Adresse:** Das Formular geht aus Sicherheitsgründen immer nur an die Adresse aus deinen Mitgliedsdaten. Ist sie falsch oder fehlt, zuerst mit [Stammdaten ändern](#stammdaten-aendern) die E-Mail-Adresse ändern. Sobald das genehmigt ist, den Workflow erneut starten.
 - **Keine E-Mail bekommen?** Spam-Ordner prüfen. Konnte das Formular nicht verschickt werden, bekommst du vom Bot eine Nachricht in Slack.
 - **Abbrechen:** Schließt du das Popup, wird nichts verschickt.
 

@@ -231,16 +231,19 @@ export function createGoogleSheetsMasterdataService(
     maintObj: ApprovalObject,
   ): Promise<void> {
     const user = await getUserFromId({ slackId: maintObj.slackId });
-    if (!user) return;
+    if (!user) {
+      throw new Error("Mitglied nicht in den Stammdaten gefunden");
+    }
 
     // prevent Sheets from interpreting a leading "+" as the start of a formula
     if (maintObj.phone && /^\+\d+$/.test(maintObj.phone)) {
       maintObj.phone = `'${maintObj.phone}`;
     }
 
+    // slackId only identifies the row, it is never changed here
     const updatedFields = (
       Object.keys(maintObj) as (keyof ApprovalObject)[]
-    ).filter((key) => key !== "slackId" || maintObj[key] !== "");
+    ).filter((key) => key !== "slackId");
 
     await Promise.all(
       updatedFields.map((key) =>

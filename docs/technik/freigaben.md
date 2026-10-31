@@ -14,6 +14,9 @@ Die Freigabe betrifft nur das **Bauen** von Workflows. Einen fertigen Workflow, 
 | Coaching-Vertrag senden | `signatures_send_coaching_request` | App-Inhaber:innen |
 | Rechnung aus Nachricht einreichen | `expenses_submit_from_message` | App-Inhaber:innen |
 | Austrittsdatum setzen | `masterdata_set_leave_date` | App-Inhaber:innen |
+| Stammdaten ändern | `masterdata_change_popup` | App-Inhaber:innen |
+| Stammdatenänderungen speichern | `masterdata_apply_changes` | App-Inhaber:innen |
+| Neues Mitglied speichern | `masterdata_save_new_member` | App-Inhaber:innen |
 | Kontodaten-Änderung anfragen | `masterdata_request_bank_change` | App-Inhaber:innen |
 | Kontodaten-Formular senden | `masterdata_send_bank_change_form` | App-Inhaber:innen |
 | Kontodaten speichern | `masterdata_save_bank_details` | App-Inhaber:innen |

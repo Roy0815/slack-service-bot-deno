@@ -136,6 +136,88 @@ Schreibt das Austrittsdatum (als `DD.MM.YYYY`) in die Zeile des Mitglieds in "Al
 
 Keine Ausgaben.
 
+### Stammdaten ändern
+
+`callback_id`: `masterdata_change_popup`
+
+Öffnet sofort ein Modal mit "Lädt..."-Platzhaltern (der Interactivity-Pointer ist nur wenige Sekunden gültig), liest dann die Daten des Mitglieds über die Slack-ID und setzt sie per `views.update` als Platzhalter. Ist das Mitglied nicht registriert, zeigt das Modal einen Hinweis und die Function endet mit Fehler. Schließen des Modals beendet sie mit "Stammdaten ändern abgebrochen".
+
+Die Function bleibt offen (`completed: false`), bis das Modal abgeschickt wird. Beim Absenden wird validiert:
+
+- Telefonnummer gegen `^(\++|0)\d*$`
+- mindestens ein Feld weicht vom gespeicherten Wert ab
+
+Leere Felder und unveränderte Werte werden nicht ausgegeben. Die Function speichert nichts und postet nichts, das übernehmen [Genehmigung einholen](#genehmigung-einholen) und [Stammdatenänderungen speichern](#stammdatenanderungen-speichern).
+
+| Eingabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `interactivity` **\*** | `slack#/types/interactivity` | Interaktion, die den Workflow gestartet hat |
+
+| Ausgabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `slackId` | `slack#/types/user_id` | Mitglied, das die Änderung angefragt hat |
+| `firstname`, `lastname`, `email`, `phone`, `street`, `houseNumber`, `city`, `zip` | `string` | Neuer Wert, nur gesetzt wenn das Feld geändert wurde |
+| `userNotificationText` | `string` | Bestätigung für das Mitglied, mit Liste `Feld: alt ➡️ neu` |
+| `approverNotificationText` | `string` | Text für die Freigabe, mit derselben Liste |
+
+Die Felder sind in `src/shared/masterdata/schema.ts` definiert und werden von beiden Stammdaten-Schritten verwendet. Sie sind bewusst einzelne Parameter statt eines Objekts: Inputs vom Typ `object` kann der Workflow Builder nicht befüllen.
+
+### Stammdatenänderungen speichern
+
+`callback_id`: `masterdata_apply_changes`
+
+Schreibt jedes nicht leere Feld in die Zeile des Mitglieds in "Allg Daten". `slackId` dient nur zum Finden der Zeile und wird nicht geschrieben. Eine Telefonnummer `+…` bekommt ein `'` davor, damit Sheets sie nicht als Formel liest. Ist das Mitglied nicht in den Stammdaten, endet die Function mit Fehler.
+
+| Eingabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `slackId` **\*** | `slack#/types/user_id` | Ausgabe `slackId` von **Stammdaten ändern** |
+| `firstname`, `lastname`, `email`, `phone`, `street`, `houseNumber`, `city`, `zip` | `string` | Gleichnamige Ausgaben von **Stammdaten ändern**. Leer = unverändert |
+
+Keine Ausgaben.
+
+### Neues Mitglied speichern
+
+`callback_id`: `masterdata_save_new_member`
+
+Nachfolger des Schritts `saveNewMember` im Legacy-Bot, mit identischen Ein- und Ausgaben (Namen, Titel, Typen, Pflichtfelder). Alle Eingaben sind `string`, weil sie direkt aus Webhook-Variablen kommen, und werden unverändert übernommen. Auch die Datumsfelder werden nicht umgewandelt.
+
+Ablauf:
+
+1. `saveNewMember`: Die neue Zeile ist die Anzahl belegter Zellen in der ID-Spalte von "Allg Daten" + 1. Alle Felder werden einzeln (`USER_ENTERED`) in "Allg Daten" bzw. "SEPA Daten" geschrieben. Telefonnummer ohne Leerzeichen und mit `'` vor `+`. Ist `accountOwner` gleich dem eigenen Namen, wird er geleert. Danach liest die Function die Formelfelder aus "SEPA Daten" zurück.
+2. Erst nach erfolgreichem Speichern: vCard (`Vorname Nachname.vcf`) per `files.getUploadURLExternal` → Upload → `files.completeUploadExternal` in `adminChannel`. Der Link entsteht über `files.info` (`shares.public` oder `shares.private`) und `chat.getPermalink`. Meldet Slack den Share noch nicht, bleibt der Link leer.
+3. Fehlen Mandatsreferenz oder Beträge, endet die Function mit Fehler. Das Mitglied ist dann bereits gespeichert.
+
+Unterschiede zum Legacy-Schritt: Die Kontaktkarte wird erst nach dem Speichern gepostet (vorher parallel), der Link funktioniert auch in öffentlichen Channels, und die Fehlermeldungen sind auf Deutsch.
+
+| Eingabe | Typ | Titel |
+| --- | --- | --- |
+| `joinedDate` **\*** | `string` | Beitrittsdatum |
+| `firstname` **\*** | `string` | Vorname |
+| `lastname` **\*** | `string` | Nachname |
+| `email` **\*** | `string` | E-Mail |
+| `phone` **\*** | `string` | Telefonnummer |
+| `birthday` **\*** | `string` | Geburtstag |
+| `street` **\*** | `string` | Straße |
+| `houseNumber` **\*** | `string` | Hausnummer |
+| `zip` **\*** | `string` | Postleitzahl |
+| `city` **\*** | `string` | Wohnort |
+| `sex` **\*** | `string` | Geschlecht |
+| `membershipType` **\*** | `string` | Art der Mitgliedschaft |
+| `IBAN` **\*** | `string` | IBAN (Format prüft das DocuSeal-Formular) |
+| `BIC` **\*** | `string` | BIC |
+| `accountOwner` **\*** | `string` | Kontoinhaber |
+| `signingDate` **\*** | `string` | Datum der Unterschrift |
+| `adminChannel` **\*** | `slack#/types/channel_id` | Admin Channel |
+
+| Ausgabe | Typ | Titel |
+| --- | --- | --- |
+| `mandateReference` | `string` | Mandatsreferenz (Formel in "SEPA Daten") |
+| `contactCardMessageLink` | `string` | Link zur Kontaktnachricht, ggf. leer |
+| `initialAmount` | `string` | Erstmaliger Einzugsbetrag, exkl. Aufnahmegebühr (Formel) |
+| `recurringAmount` | `string` | Wiederkehrender Betrag, halbjährlich (Formel) |
+
+Bot-Scopes: `files:read`, `files:write`, `chat:write`. Upload-URLs liegen auf `files.slack.com` (in `outgoingDomains`).
+
 ### Kontodaten-Änderung anfragen
 
 `callback_id`: `masterdata_request_bank_change`
