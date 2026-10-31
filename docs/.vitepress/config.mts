@@ -100,6 +100,10 @@ export default defineConfig({
               link: "/anleitung/admins#rechnung-aus-nachricht",
             },
             {
+              text: "Genehmigung einholen",
+              link: "/anleitung/admins#genehmigung",
+            },
+            {
               text: "Kontodaten ändern",
               link: "/anleitung/admins#kontodaten-aendern",
             },

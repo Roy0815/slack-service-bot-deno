@@ -11,6 +11,7 @@ Wie Mitglieder die Workflows benutzen, steht in der [Anleitung für Mitglieder](
 | [Coaching-Vertrag](#coaching-vertrag) | Vereinscoaches | Workflow für Coaching-Verträge mit digitaler Unterschrift |
 | [Rechnung einreichen](#rechnung-einreichen) | alle Mitglieder | Belege einreichen, genehmigen und ablegen |
 | [Rechnung aus Nachricht](#rechnung-aus-nachricht) | Vorstand | Rechnungen aus E-Mails im Vorstands-Channel per Emoji-Reaktion einreichen |
+| [Genehmigung einholen](#genehmigung) | freigegebene Mitglieder | Allgemeiner Schritt zum Freigeben oder Ablehnen, für beliebige Workflows |
 | [Kontodaten ändern](#kontodaten-aendern) | alle Mitglieder | Neues SEPA-Mandat unterschreiben, genehmigen und speichern |
 | [Austritt einplanen](#austritt) | Vorstand | Austrittsdatum nach einer Kündigung in den Mitgliedsdaten setzen |
 | [Google Drive Ablage](#google-drive) | nur Admins | Schritt zum Hochladen von Dateien in Google Drive Ordner |
@@ -25,6 +26,7 @@ Ein Schritt des Bots taucht im Workflow Builder nur bei den Personen auf, für d
 | Datum formatieren, URL kodieren | alle Mitglieder |
 | Coaching-Vertrag ausfüllen, Coaching-Vertrag senden | App-Inhaber:innen |
 | Rechnung aus Nachricht einreichen | App-Inhaber:innen |
+| Genehmigung einholen | App-Inhaber:innen und einzeln freigegebene Mitglieder |
 | Kontodaten-Änderung anfragen, Kontodaten-Formular senden, Kontodaten speichern | App-Inhaber:innen |
 | Austrittsdatum setzen | App-Inhaber:innen |
 | Datei zu Google Drive hochladen | App-Inhaber:innen |
@@ -171,6 +173,41 @@ Weitere Ausgaben von Schritt 1, z. B. für Nachrichten im Thread der Freigabe: *
 
 ::: tip Bot im Channel
 Der Bot muss die Nachricht lesen können. Öffentlichen Channels tritt er selbst bei. In einem **privaten** Channel muss er einmal hinzugefügt werden (Channel-Details → Integrationen → App hinzufügen), sonst bekommt man eine DM mit diesem Hinweis.
+:::
+
+## Genehmigung einholen {#genehmigung}
+
+Allgemeiner Schritt für jeden Workflow, in dem jemand etwas freigeben muss. Er postet eine Nachricht mit den Buttons **Freigeben** und **Ablehnen** in einen Channel und wartet, bis jemand entscheidet.
+
+| Eingabe | Beschreibung |
+| --- | --- |
+| **Freigabe-Channel** | Channel, in den die Anfrage gepostet wird, z. B. der Vorstands-Channel |
+| **Text** | Text der Anfrage. Variablen aus vorherigen Schritten können eingefügt werden |
+| **Thread-Nachricht** | Optional: Link zu einer Nachricht im Freigabe-Channel, z. B. die Variable *Link zur Nachricht* aus einem vorherigen „Nachricht senden“-Schritt mit der Datei aus dem Formular. Die Anfrage erscheint dann als Antwort in deren Thread und zusätzlich im Channel, die Datei steht also nur einmal im Channel |
+| **Anfragende Person** | Optional: wer bei einer Ablehnung per DM benachrichtigt wird, meist die Person, die den Workflow gestartet hat |
+
+Ausgabe: **Freigegeben von** (die Person, die freigegeben hat).
+
+**Freigeben:** Die Nachricht zeigt, wer wann freigegeben hat, und der Workflow läuft mit dem nächsten Schritt weiter.
+
+**Ablehnen:** Es öffnet sich ein Popup für einen optionalen Grund. Danach:
+
+1. Der Schritt endet mit einem Fehler und der **Workflow bricht ab**. Kein späterer Schritt läuft, es wird also nichts gespeichert.
+2. Die **anfragende Person** bekommt eine DM mit Ablehnung und Grund, darunter klein der Text der Anfrage. Kann die DM nicht zugestellt werden (z. B. weil die Person Slack verlassen hat), schreibt der Bot einen Hinweis in den Thread der Anfrage, der auch im Channel erscheint: bitte persönlich informieren. Von dort springt man zur ursprünglichen Anfrage.
+3. Die Nachricht zeigt, wer wann abgelehnt hat, und den Grund.
+
+**Gleichzeitige Klicks:** Es gilt immer nur die erste Entscheidung. Wer danach noch auf **Freigeben** klickt, bekommt eine nur für ihn sichtbare Nachricht "Über diese Anfrage wurde bereits von jemand anderem entschieden". Wer danach eine Ablehnung abschickt, sieht diesen Hinweis im Popup. In beiden Fällen passiert sonst nichts, es gibt also keine doppelten DMs.
+
+Bei einer Freigabe bekommt die anfragende Person keine DM von diesem Schritt. Die Bestätigung schickt der Workflow selbst, wenn alles erledigt ist.
+
+**Formatierung im Text:** Den Text direkt im Feld schreiben und mit der Werkzeugleiste des Workflow Builders formatieren (fett, kursiv, Listen, Links, @-Erwähnungen). Das erscheint in der Anfrage genau so. Bei eingefügten **Variablen** ist das anders: Ihr Inhalt wird als reiner Text übernommen. Nur Erwähnungen (`<@…>`, `<#…>`) und `` `Code` `` werden darin umgewandelt. Steht in einer Variable z. B. `*fett*`, erscheinen die Sternchen in der Anfrage. Die Texte der Vereins-Schritte (z. B. *Nachricht zur Freigabe*) passen schon dazu.
+
+**Dateien:** Der Bot kann Dateien aus einem Formular nicht lesen. Deshalb die Datei vorher mit einem Schritt **Nachricht senden** in den Freigabe-Channel posten und dessen *Link zur Nachricht* bei *Thread-Nachricht* eintragen. Die Anfrage erscheint dann im Thread darunter und zusätzlich im Channel. Öffentliche Links, z. B. das PDF aus DocuSeal, einfach in den *Text* schreiben.
+
+Weil der Workflow bei einer Ablehnung abbricht, braucht man im Workflow Builder keine Verzweigung. Alles, was nach der Freigabe passieren soll, einfach als nächste Schritte anhängen. Im Aktivitätsprotokoll steht die Ablehnung als Fehler "Anfrage abgelehnt von …".
+
+::: tip Wer den Schritt verwenden kann
+Der Schritt sieht keine Vereinsdaten und ist deshalb neben den App-Inhaber:innen auch für einzelne Mitglieder freigegeben, die eigene Workflows mit Freigabe bauen. Weitere Personen gibt man wie unter [Freigabe von Schritten](../technik/freigaben) beschrieben frei.
 :::
 
 ## Kontodaten ändern {#kontodaten-aendern}
