@@ -6,7 +6,8 @@ import { DefineFunction, Schema } from "deno-slack-sdk/mod.ts";
  * approved - the caller supplies the message text and, on approval,
  * chains whatever follow-up step actually applies the change. A rejection
  * DMs the requester (if given) and ends the step with an error, so no
- * later workflow step runs.
+ * later workflow step runs. Only an approval has outputs: the approver and
+ * the approval message.
  */
 export const ApproverFunction = DefineFunction({
   callback_id: "shared_approver",
@@ -47,7 +48,26 @@ export const ApproverFunction = DefineFunction({
         title: "Freigegeben von",
         description: "Freigegeben von",
       },
+      approvalMessage: {
+        type: Schema.slack.types.message_context,
+        title: "Freigabe-Nachricht",
+        description:
+          "Z. B. für die Nachricht eines Listenelements oder um im Thread zu antworten",
+      },
+      approvalMessageLink: {
+        type: Schema.types.string,
+        title: "Link zur Freigabe-Nachricht",
+      },
+      approvalMessageTs: {
+        type: Schema.types.string,
+        title: "Zeitstempel der Freigabe-Nachricht",
+      },
     },
-    required: ["approver"],
+    required: [
+      "approver",
+      "approvalMessage",
+      "approvalMessageLink",
+      "approvalMessageTs",
+    ],
   },
 });

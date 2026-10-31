@@ -34,13 +34,21 @@ const postedRichText = { ...richText[0], type: "rich_text" };
 
 const baseInputs = { approverChannel: "C_APPROVERS", text: richText };
 
+const approvalLink = "https://example.slack.com/archives/C_APPROVERS/p11";
+
 function blockActionsContext(
   actionId: string,
   inputs: Record<string, unknown> = baseInputs,
 ) {
   return {
     env: {},
-    action: { action_id: actionId },
+    // the Freigeben button carries the approval message's link
+    action: {
+      action_id: actionId,
+      ...(actionId === ApproverActionIds.approve
+        ? { value: approvalLink }
+        : {}),
+    },
     body: {
       trigger_id: "Ft1",
       interactivity: { interactivity_pointer: "pointer-1" },
@@ -55,8 +63,14 @@ function blockActionsContext(
   };
 }
 
+const postResponses = {
+  "chat.postMessage": { ok: true, ts: "1.1" },
+  "chat.getPermalink": { ok: true, permalink: approvalLink },
+  "chat.update": { ok: true },
+};
+
 Deno.test("main handler posts the approval message and stays open", async () => {
-  const stub = stubFetch({ responses: { "chat.postMessage": { ok: true } } });
+  const stub = stubFetch({ responses: postResponses });
 
   try {
     const result = await handler(createContext({ inputs: baseInputs }));
@@ -77,11 +91,53 @@ Deno.test("main handler posts the approval message and stays open", async () => 
   }
 });
 
+Deno.test("main handler stores the message's link in the Freigeben button", async () => {
+  const stub = stubFetch({ responses: postResponses });
+
+  try {
+    await handler(createContext({ inputs: baseInputs }));
+
+    const updateCall = stub.calls.find((call) =>
+      call.url.includes("chat.update")
+    );
+    // deno-lint-ignore no-explicit-any
+    const body = updateCall?.body as any;
+    assertEquals(String(body.ts), "1.1");
+    assertEquals(body.blocks[1].elements[0].value, approvalLink);
+  } finally {
+    stub.restore();
+  }
+});
+
+Deno.test("main handler keeps the request without a link when the permalink can't be fetched", async () => {
+  const stub = stubFetch({
+    responses: {
+      ...postResponses,
+      "chat.getPermalink": { ok: false, error: "message_not_found" },
+    },
+  });
+  const originalError = console.error;
+  console.error = () => {};
+
+  try {
+    const result = await handler(createContext({ inputs: baseInputs }));
+
+    assertEquals(result.completed, false);
+    assertEquals(
+      stub.calls.some((call) => call.url.includes("chat.update")),
+      false,
+    );
+  } finally {
+    console.error = originalError;
+    stub.restore();
+  }
+});
+
 const threadMessageLink =
   "https://example.slack.com/archives/C_APPROVERS/p1793448876123456";
 
 Deno.test("main handler posts the request as a thread reply broadcast to the channel when a thread message link is given", async () => {
-  const stub = stubFetch({ responses: { "chat.postMessage": { ok: true } } });
+  const stub = stubFetch({ responses: postResponses });
 
   try {
     await handler(
@@ -100,7 +156,7 @@ Deno.test("main handler posts the request as a thread reply broadcast to the cha
   }
 });
 
-Deno.test("approve resolves immediately: updates the message and completes with the approver", async () => {
+Deno.test("approve resolves immediately: updates the message and completes with the approver and the approval message", async () => {
   const stub = stubFetch({
     responses: {
       "chat.update": { ok: true },
@@ -117,7 +173,17 @@ Deno.test("approve resolves immediately: updates the message and completes with 
     // deno-lint-ignore no-explicit-any
     assertEquals((completeCall?.body as any).outputs, {
       approver: "U_APPROVER",
+      approvalMessage: { channel_id: "C_APPROVERS", message_ts: "1.1" },
+      approvalMessageLink: approvalLink,
+      approvalMessageTs: "1.1",
     });
+    // nothing delays the completion
+    assertEquals(
+      stub.calls.findIndex((call) =>
+        call.url.includes("functions.completeSuccess")
+      ),
+      0,
+    );
     assertEquals(
       stub.calls.some((call) => call.url.includes("views.open")),
       false,

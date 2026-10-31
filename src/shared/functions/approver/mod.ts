@@ -32,7 +32,7 @@ export default SlackFunction(
         inputs.approverChannel,
       );
 
-      assertOk(
+      const posted = assertOk(
         await client.chat.postMessage({
           channel: inputs.approverChannel,
           // as a reply below e.g. a message with a file, which the bot
@@ -43,6 +43,24 @@ export default SlackFunction(
         }),
         "ApproverFunction - Error posting approval message",
       );
+
+      // fetched now rather than on approval, so the click can complete
+      // the step right away
+      const location = {
+        channel: inputs.approverChannel,
+        ts: posted.ts as string,
+      };
+      const messageLink = await getPermalink(client, location);
+      if (messageLink) {
+        assertOk(
+          await client.chat.update({
+            ...location,
+            blocks: approvalMessageBlocks(inputs.text, messageLink),
+            text: "Neue Genehmigungsanfrage",
+          }),
+          "ApproverFunction - Error adding approval link",
+        );
+      }
     } catch (error) {
       return { error: errorMessage(error) };
     }
@@ -91,6 +109,7 @@ export default SlackFunction(
       executionId: body.function_data.execution_id,
       approved: true,
       userId: body.user.id,
+      messageLink: action.value ?? "",
     });
 
     if (!decided) {
@@ -147,6 +166,7 @@ async function resolveApproval(
     approved,
     userId,
     reason,
+    messageLink,
   }: {
     location: MessageLocation;
     // deno-lint-ignore no-explicit-any
@@ -156,13 +176,23 @@ async function resolveApproval(
     approved: boolean;
     userId: string;
     reason?: string;
+    /** approval only: link stored in the Freigeben button */
+    messageLink?: string;
   },
 ): Promise<boolean> {
   // ending with an error is what stops the remaining workflow steps
   const completed = approved
     ? await client.functions.completeSuccess({
       function_execution_id: executionId,
-      outputs: { approver: userId },
+      outputs: {
+        approver: userId,
+        approvalMessage: {
+          channel_id: location.channel,
+          message_ts: location.ts,
+        },
+        approvalMessageLink: messageLink ?? "",
+        approvalMessageTs: location.ts,
+      },
     })
     : await client.functions.completeError({
       function_execution_id: executionId,
@@ -203,6 +233,26 @@ async function resolveApproval(
   );
 
   return true;
+}
+
+/**
+ * Link to the approval message for the step's outputs. Empty if Slack
+ * can't resolve it - a missing link must not block the approval.
+ */
+async function getPermalink(
+  client: SlackAPIClient,
+  location: MessageLocation,
+): Promise<string> {
+  const response = await client.chat.getPermalink({
+    channel: location.channel,
+    message_ts: location.ts,
+  });
+  if (!response.ok) {
+    console.error(
+      `ApproverFunction - Error getting approval link: ${response.error}`,
+    );
+  }
+  return response.permalink ?? "";
 }
 
 /**

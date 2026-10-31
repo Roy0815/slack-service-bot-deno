@@ -72,10 +72,13 @@ function splitMrkdwnText(element: RichTextBlock): RichTextBlock[] {
 }
 
 /**
- * Initial approval request: the text plus Freigeben/Ablehnen buttons.
+ * Initial approval request: the text plus Freigeben/Ablehnen buttons. The
+ * Freigeben button carries the message's own link, so the click can
+ * complete the step without another API call.
  */
 export function approvalMessageBlocks(
   text: RichTextBlock,
+  messageLink?: string,
   // deno-lint-ignore no-explicit-any
 ): any[] {
   // deno-lint-ignore no-explicit-any
@@ -90,6 +93,7 @@ export function approvalMessageBlocks(
             style: "primary",
             text: { type: "plain_text", text: "Freigeben", emoji: true },
             action_id: ApproverActionIds.approve,
+            ...(messageLink ? { value: messageLink } : {}),
           },
           {
             type: "button",
