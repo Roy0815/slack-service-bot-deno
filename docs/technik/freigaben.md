@@ -21,7 +21,7 @@ Die Freigabe betrifft nur das **Bauen** von Workflows. Einen fertigen Workflow, 
 | Kontodaten-Formular senden | `masterdata_send_bank_change_form` | App-Inhaber:innen |
 | Kontodaten speichern | `masterdata_save_bank_details` | App-Inhaber:innen |
 | Datei zu Google Drive hochladen | `google_drive_upload_file` | App-Inhaber:innen |
-| Genehmigung einholen | `shared_approver` | App-Inhaber:innen und einzelne Mitglieder |
+| Genehmigung einholen | `shared_approver` | alle Mitglieder |
 
 ::: warning
 Functions mit Zugriff auf Vereinsdaten oder externe Konten (Stammdaten, Google Drive, DocuSeal) nicht für alle freigeben, sondern bei den App-Inhaber:innen belassen. Der Drive-Upload z. B. kann in jeden Ordner schreiben, der für den Service Account freigegeben ist.
@@ -42,6 +42,7 @@ Für alle Mitglieder des Workspaces freigeben:
 ```sh
 slack function access --name utility_format_date --everyone --grant
 slack function access --name utility_encode_url --everyone --grant
+slack function access --name shared_approver --everyone --grant
 ```
 
 Für einzelne Personen freigeben (Slack User-ID, z. B. aus dem Profil über *⋮ → Mitglieds-ID kopieren*):
@@ -50,10 +51,10 @@ Für einzelne Personen freigeben (Slack User-ID, z. B. aus dem Profil über *⋮
 slack function access --name google_drive_upload_file --users U0123456789 --grant
 ```
 
-Mehrere Personen auf einmal, z. B. für **Genehmigung einholen**, das auch in Workflows einzelner Mitglieder verwendet werden soll:
+Mehrere Personen auf einmal:
 
 ```sh
-slack function access --name shared_approver --users U0123456789,U0987654321 --grant
+slack function access --name google_drive_upload_file --users U0123456789,U0987654321 --grant
 ```
 
 Freigabe wieder auf die App-Inhaber:innen beschränken:

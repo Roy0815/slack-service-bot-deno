@@ -11,7 +11,7 @@ Wie Mitglieder die Workflows benutzen, steht in der [Anleitung für Mitglieder](
 | [Coaching-Vertrag](#coaching-vertrag) | Vereinscoaches | Workflow für Coaching-Verträge mit digitaler Unterschrift |
 | [Rechnung einreichen](#rechnung-einreichen) | alle Mitglieder | Belege einreichen, genehmigen und ablegen |
 | [Rechnung aus Nachricht](#rechnung-aus-nachricht) | Vorstand | Rechnungen aus E-Mails im Vorstands-Channel per Emoji-Reaktion einreichen |
-| [Genehmigung einholen](#genehmigung) | freigegebene Mitglieder | Allgemeiner Schritt zum Freigeben oder Ablehnen, für beliebige Workflows |
+| [Genehmigung einholen](#genehmigung) | alle Mitglieder | Allgemeiner Schritt zum Freigeben oder Ablehnen, für beliebige Workflows |
 | [Stammdaten ändern](#stammdaten-aendern) | alle Mitglieder | Eigene Mitgliedsdaten ändern, genehmigen und speichern |
 | [Kontodaten ändern](#kontodaten-aendern) | alle Mitglieder | Neues SEPA-Mandat unterschreiben, genehmigen und speichern |
 | [Neues Mitglied](#neues-mitglied) | Vorstand | Aufnahmeantrag in die Mitgliedsdaten übernehmen |
@@ -28,7 +28,7 @@ Ein Schritt des Bots taucht im Workflow Builder nur bei den Personen auf, für d
 | Datum formatieren, URL kodieren | alle Mitglieder |
 | Coaching-Vertrag ausfüllen, Coaching-Vertrag senden | App-Inhaber:innen |
 | Rechnung aus Nachricht einreichen | App-Inhaber:innen |
-| Genehmigung einholen | App-Inhaber:innen und einzeln freigegebene Mitglieder |
+| Genehmigung einholen | alle Mitglieder |
 | Stammdaten ändern, Stammdatenänderungen speichern | App-Inhaber:innen |
 | Kontodaten-Änderung anfragen, Kontodaten-Formular senden, Kontodaten speichern | App-Inhaber:innen |
 | Neues Mitglied speichern | App-Inhaber:innen |
@@ -211,7 +211,7 @@ Bei einer Freigabe bekommt die anfragende Person keine DM von diesem Schritt. Di
 Weil der Workflow bei einer Ablehnung abbricht, braucht man im Workflow Builder keine Verzweigung. Alles, was nach der Freigabe passieren soll, einfach als nächste Schritte anhängen. Im Aktivitätsprotokoll steht die Ablehnung als Fehler "Anfrage abgelehnt von …".
 
 ::: tip Wer den Schritt verwenden kann
-Der Schritt sieht keine Vereinsdaten und ist deshalb neben den App-Inhaber:innen auch für einzelne Mitglieder freigegeben, die eigene Workflows mit Freigabe bauen. Weitere Personen gibt man wie unter [Freigabe von Schritten](../technik/freigaben) beschrieben frei.
+Der Schritt sieht keine Vereinsdaten und ist deshalb für alle Mitglieder freigegeben, damit sie eigene Workflows mit Freigabe bauen können. Wie das aus Sicht der Mitglieder aussieht, steht in der [Anleitung für Mitglieder](./mitglieder#genehmigung-einholen).
 :::
 
 ## Stammdaten ändern {#stammdaten-aendern}

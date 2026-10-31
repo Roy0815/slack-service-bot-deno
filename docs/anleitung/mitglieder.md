@@ -8,7 +8,7 @@ Hier steht, wie du die Funktionen des Bots in Slack benutzt.
 | [Stammdaten ändern](#stammdaten-aendern) | alle Mitglieder | Name, E-Mail, Telefonnummer oder Adresse in deinen Mitgliedsdaten ändern |
 | [Kontodaten ändern](#kontodaten-aendern) | alle Mitglieder | Neues SEPA-Mandat für den Mitgliedsbeitrag digital unterschreiben |
 | [Coaching-Vertrag](#coaching-vertrag) | Vereinscoaches | Coaching-Vertrag in Slack ausfüllen und digital unterschreiben lassen |
-| [Eigene Workflows](#eigene-workflows) | alle Mitglieder | Bausteine "Datum formatieren" und "URL kodieren" in eigenen Slack-Workflows verwenden |
+| [Eigene Workflows](#eigene-workflows) | alle Mitglieder | Bausteine "Datum formatieren", "URL kodieren" und "Genehmigung einholen" in eigenen Slack-Workflows verwenden |
 
 Du richtest Workflows ein? Dann geht's weiter bei der [Anleitung für Admins](./admins).
 
@@ -144,7 +144,7 @@ sequenceDiagram
 
 ## Eigene Workflows {#eigene-workflows}
 
-In Slack kann jedes Mitglied mit dem **Workflow Builder** eigene Workflows bauen. Der Service Bot bringt dafür zwei Bausteine mit, die für alle freigegeben sind.
+In Slack kann jedes Mitglied mit dem **Workflow Builder** eigene Workflows bauen. Der Service Bot bringt dafür drei Bausteine mit, die für alle freigegeben sind.
 
 ### Bausteine hinzufügen {#bausteine-hinzufuegen}
 
@@ -188,3 +188,19 @@ Für den Link `https://example.com/zahlung?zweck=…` soll der Verwendungszweck 
 
 Nur den **eingesetzten Teil** kodieren, nicht den ganzen Link - sonst werden auch `:`, `/` und `?` des Links umgewandelt und er funktioniert nicht mehr.
 :::
+
+### Genehmigung einholen {#genehmigung-einholen}
+
+Postet eine Anfrage mit den Buttons **Freigeben** und **Ablehnen** in einen Channel und wartet, bis jemand entscheidet. Nützlich für alles, was jemand absegnen soll, bevor es weitergeht, z. B. eine Anmeldung oder eine Bestellung.
+
+| Eingabe | Beschreibung |
+| --- | --- |
+| **Freigabe-Channel** | Channel, in den die Anfrage gepostet wird |
+| **Text** | Text der Anfrage, gern mit Variablen aus vorherigen Schritten |
+| **Thread-Nachricht** | Optional: *Link zur Nachricht* eines vorherigen Schritts **Nachricht senden** im selben Channel. Die Anfrage erscheint dann im Thread darunter. So lässt sich z. B. eine Datei aus einem Formular mitschicken |
+| **Anfragende Person** | Optional: bekommt bei einer Ablehnung eine DM mit dem Grund |
+
+- **Freigeben:** Der Workflow läuft mit dem nächsten Schritt weiter. Ausgaben sind *Freigegeben von* und die *Freigabe-Nachricht* (z. B. um im Thread zu antworten).
+- **Ablehnen:** Der Workflow bricht ab, alle späteren Schritte entfallen. Eine Verzweigung im Workflow ist also nicht nötig.
+
+Mehr Details stehen in der [Anleitung für Admins](./admins#genehmigung).
