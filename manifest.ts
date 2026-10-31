@@ -9,6 +9,10 @@ import { SetLeaveDateFunction } from "./src/masterdata/functions/set_leave_date/
 import { RequestBankChangeFunction } from "./src/masterdata/functions/request_bank_change/definition.ts";
 import { SendBankChangeFormFunction } from "./src/masterdata/functions/send_bank_change_form/definition.ts";
 import { SaveBankDetailsFunction } from "./src/masterdata/functions/save_bank_details/definition.ts";
+import { ChangeMasterdataPopupFunction } from "./src/masterdata/functions/change_masterdata_popup/definition.ts";
+import { ApplyMasterdataChangesFunction } from "./src/masterdata/functions/apply_masterdata_changes/definition.ts";
+import { SaveNewMemberFunction } from "./src/masterdata/functions/save_new_member/definition.ts";
+import { ApproverFunction } from "./src/shared/functions/approver/definition.ts";
 import CoachingPresetsDatastore from "./src/signatures/datastores/coaching_presets.ts";
 
 /**
@@ -31,6 +35,10 @@ export default Manifest({
     RequestBankChangeFunction,
     SendBankChangeFormFunction,
     SaveBankDetailsFunction,
+    ChangeMasterdataPopupFunction,
+    ApplyMasterdataChangesFunction,
+    SaveNewMemberFunction,
+    ApproverFunction,
   ],
   datastores: [CoachingPresetsDatastore],
   outgoingDomains: [

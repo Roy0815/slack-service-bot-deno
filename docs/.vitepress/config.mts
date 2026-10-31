@@ -68,6 +68,10 @@ export default defineConfig({
               link: "/anleitung/mitglieder#rechnung-einreichen",
             },
             {
+              text: "Stammdaten ändern",
+              link: "/anleitung/mitglieder#stammdaten-aendern",
+            },
+            {
               text: "Kontodaten ändern",
               link: "/anleitung/mitglieder#kontodaten-aendern",
             },
@@ -100,8 +104,20 @@ export default defineConfig({
               link: "/anleitung/admins#rechnung-aus-nachricht",
             },
             {
+              text: "Genehmigung einholen",
+              link: "/anleitung/admins#genehmigung",
+            },
+            {
+              text: "Stammdaten ändern",
+              link: "/anleitung/admins#stammdaten-aendern",
+            },
+            {
               text: "Kontodaten ändern",
               link: "/anleitung/admins#kontodaten-aendern",
+            },
+            {
+              text: "Neues Mitglied",
+              link: "/anleitung/admins#neues-mitglied",
             },
             { text: "Austritt einplanen", link: "/anleitung/admins#austritt" },
             {

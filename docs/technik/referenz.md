@@ -87,6 +87,41 @@ Zugriff auf den Channel über `withChannelAccess` (`src/shared/channel_access.ts
 
 Bot-Scopes: `channels:history`, `channels:join`, `channels:read`, `groups:history`, `groups:read`, `files:read`, `files:write`. Download-URLs von E-Mail-Anhängen liegen auf `files-origin.slack.com` (in `outgoingDomains`).
 
+## Genehmigung
+
+Quellcode: `src/shared/functions/approver/`
+
+### Genehmigung einholen
+
+`callback_id`: `shared_approver`
+
+Allgemeiner Freigabe-Schritt. Postet `text` mit den Buttons **Freigeben** und **Ablehnen** in den Channel (mit `threadMessageLink` als Antwort im Thread dieser Nachricht, `reply_broadcast: true`) und bleibt offen (`completed: false`), bis jemand entscheidet. Danach wird die Nachricht ohne Buttons neu aufgebaut, mit Entscheidung, Person, Uhrzeit und Datum (Europe/Berlin) als Context-Block, beginnend mit :white_check_mark: bzw. :x:.
+
+- **Reihenfolge:** Bei jeder Entscheidung wird der Schritt **zuerst** abgeschlossen (`completeSuccess` bzw. `completeError`). Slack akzeptiert nur das erste Abschließen einer Execution, dieser Aufruf entscheidet also zwischen gleichzeitigen Klicks. Erst danach folgen DM und `chat.update`. Wer zu spät ist, bekommt "Über diese Anfrage wurde bereits von jemand anderem entschieden": beim Freigeben per `chat.postEphemeral`, beim Ablehnen als Fehler im Grund-Popup (`response_action: "errors"`). Weitere Aktionen gibt es dann nicht.
+- **Freigeben:** `completeSuccess` mit `approver`, der Freigabe-Nachricht und `interactivity` des Klicks, dann Nachricht aktualisieren. Ausgaben gibt es nur bei einer Freigabe, eine Ablehnung bricht den Workflow ab.
+- **Link:** Direkt nach dem Posten holt der Schritt den Link per `chat.getPermalink` und legt ihn per `chat.update` als `value` in den Freigeben-Button. So schließt der Klick den Schritt ohne weiteren API-Aufruf ab, denn das weitergegebene `interactivity` ist nur wenige Sekunden gültig. Liefert Slack keinen Link, bleibt die Ausgabe leer.
+- **Ablehnen:** Popup mit optionalem Grund. Nach dem Absenden `completeError` mit "Anfrage abgelehnt von <@…>. Grund: …", das bricht den Workflow ab. Dann bekommt `requester` (falls gesetzt) eine DM mit Ablehnung und Grund, darunter der Originaltext klein als Context-Block. Weil Context-Blöcke kein Rich Text annehmen, wird `text` dafür in mrkdwn umgewandelt (`richTextToMrkdwn`, max. 3000 Zeichen). Schlägt die DM fehl, postet der Bot einen Hinweis in den Thread der Anfrage (bzw. in den Thread von `threadMessageLink`) mit `reply_broadcast: true`, damit er auch im Channel erscheint ("bitte persönlich informieren"). Zuletzt wird die Nachricht aktualisiert.
+- Schließen des Grund-Popups lässt die Buttons stehen.
+- **Text:** Der Workflow Builder liefert `text` als Block vom Typ `expanded_rich_text`, den `chat.postMessage` ablehnt (`invalid_blocks`). Er wird deshalb als `rich_text` gepostet. In eingefügten Variablen werden `<@U…>`, `<#C…>` und `` `Code` `` in echte Erwähnungen bzw. Code-Formatierung umgewandelt, anderes mrkdwn bleibt als Text stehen.
+- Schlägt das Posten der Anfrage fehl, endet der Schritt mit der Fehlermeldung statt mit `event_dispatch_failed`.
+
+| Eingabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `approverChannel` **\*** | `slack#/types/channel_id` | Channel für die Anfrage |
+| `text` **\*** | `slack#/types/expanded_rich_text` | Text der Anfrage. Kommt zur Laufzeit als Array mit einem `expanded_rich_text`-Block an, siehe **Text** oben |
+| `threadMessageLink` | `string` | Link zu einer Nachricht im Freigabe-Channel. Die Anfrage wird als Thread-Antwort darunter gepostet und auch an den Channel gesendet. Gedacht für Dateien aus Formularen: Die kann der Bot nicht lesen, ein vorheriger „Nachricht senden“-Schritt aber posten. Ein Link statt Zeitstempel, weil der Workflow Builder den Zeitstempel nur auf Sekunden gerundet herausgibt (passt zu keiner Nachricht, Slack würde dann stillschweigend in den Channel posten). Ist der Wert kein Nachrichtenlink oder liegt die Nachricht in einem anderen Channel, bricht der Schritt mit Fehler ab |
+| `requester` | `slack#/types/user_id` | Bekommt bei Ablehnung eine DM |
+
+| Ausgabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `approver` | `slack#/types/user_id` | Freigegeben von |
+| `approvalMessage` | `slack#/types/message_context` | Freigabe-Nachricht, z. B. für die Nachricht eines Listenelements oder um im Thread zu antworten |
+| `approvalMessageLink` | `string` | Link zur Freigabe-Nachricht, leer wenn Slack ihn nicht liefert |
+| `approvalMessageTs` | `string` | Zeitstempel der Freigabe-Nachricht |
+| `interactivity` | `slack#/types/interactivity` | Klick auf **Freigeben**. Damit kann der nächste Schritt ein Popup für die freigebende Person öffnen |
+
+Keine Umgebungsvariablen. Bot-Scopes: `chat:write`.
+
 ## Stammdaten
 
 Quellcode: `src/masterdata/`, Zugriff auf die Stammdaten über `src/shared/masterdata/`. Die Stammdaten liegen in einem Google Sheet mit den Tabellenblättern **Allg Daten** (Mitgliedsdaten, eine Zeile pro Mitglied, inkl. Slack-ID) und **SEPA Daten** (Bankdaten, Zeilen parallel zu "Allg Daten"). Das Backend ist hinter dem Interface `MasterdataService` gekapselt; ein Wechsel weg von Google Sheets betrifft nur `src/shared/masterdata/service.ts`.
@@ -105,6 +140,88 @@ Schreibt das Austrittsdatum (als `DD.MM.YYYY`) in die Zeile des Mitglieds in "Al
 | `leaveDate` **\*** | `slack#/types/date` | Austrittsdatum |
 
 Keine Ausgaben.
+
+### Stammdaten ändern
+
+`callback_id`: `masterdata_change_popup`
+
+Öffnet sofort ein Modal mit "Lädt..."-Platzhaltern (der Interactivity-Pointer ist nur wenige Sekunden gültig), liest dann die Daten des Mitglieds über die Slack-ID und setzt sie per `views.update` als Platzhalter. Ist das Mitglied nicht registriert, zeigt das Modal einen Hinweis und die Function endet mit Fehler. Schließen des Modals beendet sie mit "Stammdaten ändern abgebrochen".
+
+Die Function bleibt offen (`completed: false`), bis das Modal abgeschickt wird. Beim Absenden wird validiert:
+
+- Telefonnummer gegen `^(\++|0)\d*$`
+- mindestens ein Feld weicht vom gespeicherten Wert ab
+
+Leere Felder und unveränderte Werte werden nicht ausgegeben. Die Function speichert nichts und postet nichts, das übernehmen [Genehmigung einholen](#genehmigung-einholen) und [Stammdatenänderungen speichern](#stammdatenanderungen-speichern).
+
+| Eingabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `interactivity` **\*** | `slack#/types/interactivity` | Interaktion, die den Workflow gestartet hat |
+
+| Ausgabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `slackId` | `slack#/types/user_id` | Mitglied, das die Änderung angefragt hat |
+| `firstname`, `lastname`, `email`, `phone`, `street`, `houseNumber`, `city`, `zip` | `string` | Neuer Wert, nur gesetzt wenn das Feld geändert wurde |
+| `userNotificationText` | `string` | Bestätigung für das Mitglied, mit Liste `Feld: alt ➡️ neu` |
+| `approverNotificationText` | `string` | Text für die Freigabe, mit derselben Liste |
+
+Die Felder sind in `src/shared/masterdata/schema.ts` definiert und werden von beiden Stammdaten-Schritten verwendet. Sie sind bewusst einzelne Parameter statt eines Objekts: Inputs vom Typ `object` kann der Workflow Builder nicht befüllen.
+
+### Stammdatenänderungen speichern
+
+`callback_id`: `masterdata_apply_changes`
+
+Schreibt jedes nicht leere Feld in die Zeile des Mitglieds in "Allg Daten". `slackId` dient nur zum Finden der Zeile und wird nicht geschrieben. Eine Telefonnummer `+…` bekommt ein `'` davor, damit Sheets sie nicht als Formel liest. Ist das Mitglied nicht in den Stammdaten, endet die Function mit Fehler.
+
+| Eingabe | Typ | Beschreibung |
+| --- | --- | --- |
+| `slackId` **\*** | `slack#/types/user_id` | Ausgabe `slackId` von **Stammdaten ändern** |
+| `firstname`, `lastname`, `email`, `phone`, `street`, `houseNumber`, `city`, `zip` | `string` | Gleichnamige Ausgaben von **Stammdaten ändern**. Leer = unverändert |
+
+Keine Ausgaben.
+
+### Neues Mitglied speichern
+
+`callback_id`: `masterdata_save_new_member`
+
+Nachfolger des Schritts `saveNewMember` im Legacy-Bot, mit identischen Ein- und Ausgaben (Namen, Titel, Typen, Pflichtfelder). Alle Eingaben sind `string`, weil sie direkt aus Webhook-Variablen kommen, und werden unverändert übernommen. Auch die Datumsfelder werden nicht umgewandelt.
+
+Ablauf:
+
+1. `saveNewMember`: Die neue Zeile ist die Anzahl belegter Zellen in der ID-Spalte von "Allg Daten" + 1. Alle Felder werden einzeln (`USER_ENTERED`) in "Allg Daten" bzw. "SEPA Daten" geschrieben. Telefonnummer ohne Leerzeichen und mit `'` vor `+`. Ist `accountOwner` gleich dem eigenen Namen, wird er geleert. Danach liest die Function die Formelfelder aus "SEPA Daten" zurück.
+2. Erst nach erfolgreichem Speichern: vCard (`Vorname Nachname.vcf`) per `files.getUploadURLExternal` → Upload → `files.completeUploadExternal` in `adminChannel`. Der Link entsteht über `files.info` (`shares.public` oder `shares.private`) und `chat.getPermalink`. Meldet Slack den Share noch nicht, bleibt der Link leer.
+3. Fehlen Mandatsreferenz oder Beträge, endet die Function mit Fehler. Das Mitglied ist dann bereits gespeichert.
+
+Unterschiede zum Legacy-Schritt: Die Kontaktkarte wird erst nach dem Speichern gepostet (vorher parallel), der Link funktioniert auch in öffentlichen Channels, und die Fehlermeldungen sind auf Deutsch.
+
+| Eingabe | Typ | Titel |
+| --- | --- | --- |
+| `joinedDate` **\*** | `string` | Beitrittsdatum |
+| `firstname` **\*** | `string` | Vorname |
+| `lastname` **\*** | `string` | Nachname |
+| `email` **\*** | `string` | E-Mail |
+| `phone` **\*** | `string` | Telefonnummer |
+| `birthday` **\*** | `string` | Geburtstag |
+| `street` **\*** | `string` | Straße |
+| `houseNumber` **\*** | `string` | Hausnummer |
+| `zip` **\*** | `string` | Postleitzahl |
+| `city` **\*** | `string` | Wohnort |
+| `sex` **\*** | `string` | Geschlecht |
+| `membershipType` **\*** | `string` | Art der Mitgliedschaft |
+| `IBAN` **\*** | `string` | IBAN (Format prüft das DocuSeal-Formular) |
+| `BIC` **\*** | `string` | BIC |
+| `accountOwner` **\*** | `string` | Kontoinhaber |
+| `signingDate` **\*** | `string` | Datum der Unterschrift |
+| `adminChannel` **\*** | `slack#/types/channel_id` | Admin Channel |
+
+| Ausgabe | Typ | Titel |
+| --- | --- | --- |
+| `mandateReference` | `string` | Mandatsreferenz (Formel in "SEPA Daten") |
+| `contactCardMessageLink` | `string` | Link zur Kontaktnachricht, ggf. leer |
+| `initialAmount` | `string` | Erstmaliger Einzugsbetrag, exkl. Aufnahmegebühr (Formel) |
+| `recurringAmount` | `string` | Wiederkehrender Betrag, halbjährlich (Formel) |
+
+Bot-Scopes: `files:read`, `files:write`, `chat:write`. Upload-URLs liegen auf `files.slack.com` (in `outgoingDomains`).
 
 ### Kontodaten-Änderung anfragen
 

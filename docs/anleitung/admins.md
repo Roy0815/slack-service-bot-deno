@@ -11,7 +11,10 @@ Wie Mitglieder die Workflows benutzen, steht in der [Anleitung für Mitglieder](
 | [Coaching-Vertrag](#coaching-vertrag) | Vereinscoaches | Workflow für Coaching-Verträge mit digitaler Unterschrift |
 | [Rechnung einreichen](#rechnung-einreichen) | alle Mitglieder | Belege einreichen, genehmigen und ablegen |
 | [Rechnung aus Nachricht](#rechnung-aus-nachricht) | Vorstand | Rechnungen aus E-Mails im Vorstands-Channel per Emoji-Reaktion einreichen |
+| [Genehmigung einholen](#genehmigung) | alle Mitglieder | Allgemeiner Schritt zum Freigeben oder Ablehnen, für beliebige Workflows |
+| [Stammdaten ändern](#stammdaten-aendern) | alle Mitglieder | Eigene Mitgliedsdaten ändern, genehmigen und speichern |
 | [Kontodaten ändern](#kontodaten-aendern) | alle Mitglieder | Neues SEPA-Mandat unterschreiben, genehmigen und speichern |
+| [Neues Mitglied](#neues-mitglied) | Vorstand | Aufnahmeantrag in die Mitgliedsdaten übernehmen |
 | [Austritt einplanen](#austritt) | Vorstand | Austrittsdatum nach einer Kündigung in den Mitgliedsdaten setzen |
 | [Google Drive Ablage](#google-drive) | nur Admins | Schritt zum Hochladen von Dateien in Google Drive Ordner |
 | [Datum & URL Bausteine](#bausteine) | alle Mitglieder | Hilfsschritte für Nachrichten und Links |
@@ -25,7 +28,10 @@ Ein Schritt des Bots taucht im Workflow Builder nur bei den Personen auf, für d
 | Datum formatieren, URL kodieren | alle Mitglieder |
 | Coaching-Vertrag ausfüllen, Coaching-Vertrag senden | App-Inhaber:innen |
 | Rechnung aus Nachricht einreichen | App-Inhaber:innen |
+| Genehmigung einholen | alle Mitglieder |
+| Stammdaten ändern, Stammdatenänderungen speichern | App-Inhaber:innen |
 | Kontodaten-Änderung anfragen, Kontodaten-Formular senden, Kontodaten speichern | App-Inhaber:innen |
+| Neues Mitglied speichern | App-Inhaber:innen |
 | Austrittsdatum setzen | App-Inhaber:innen |
 | Datei zu Google Drive hochladen | App-Inhaber:innen |
 
@@ -173,6 +179,90 @@ Weitere Ausgaben von Schritt 1, z. B. für Nachrichten im Thread der Freigabe: *
 Der Bot muss die Nachricht lesen können. Öffentlichen Channels tritt er selbst bei. In einem **privaten** Channel muss er einmal hinzugefügt werden (Channel-Details → Integrationen → App hinzufügen), sonst bekommt man eine DM mit diesem Hinweis.
 :::
 
+## Genehmigung einholen {#genehmigung}
+
+Allgemeiner Schritt für jeden Workflow, in dem jemand etwas freigeben muss. Er postet eine Nachricht mit den Buttons **Freigeben** und **Ablehnen** in einen Channel und wartet, bis jemand entscheidet.
+
+| Eingabe | Beschreibung |
+| --- | --- |
+| **Freigabe-Channel** | Channel, in den die Anfrage gepostet wird, z. B. der Vorstands-Channel |
+| **Text** | Text der Anfrage. Variablen aus vorherigen Schritten können eingefügt werden |
+| **Thread-Nachricht** | Optional: Link zu einer Nachricht im Freigabe-Channel, z. B. die Variable *Link zur Nachricht* aus einem vorherigen „Nachricht senden“-Schritt mit der Datei aus dem Formular. Die Anfrage erscheint dann als Antwort in deren Thread und zusätzlich im Channel, die Datei steht also nur einmal im Channel |
+| **Anfragende Person** | Optional: wer bei einer Ablehnung per DM benachrichtigt wird, meist die Person, die den Workflow gestartet hat |
+
+Ausgaben: **Freigegeben von** (die Person, die freigegeben hat) und die **Freigabe-Nachricht**, als Nachricht, *Link zur Freigabe-Nachricht* und *Zeitstempel der Freigabe-Nachricht*. Damit kann z. B. ein [To-Do](#todos) auf die Freigabe verweisen oder ein späterer Schritt im Thread antworten. Dazu kommt die **Interaktivität** des Klicks auf **Freigeben**: Damit kann der nächste Schritt ein Popup öffnen, z. B. ein Formular, das die freigebende Person direkt nach der Freigabe ausfüllt. Das Popup muss der unmittelbar folgende Schritt sein, weil die Interaktivität nach wenigen Sekunden abläuft.
+
+**Freigeben:** Die Nachricht zeigt, wer wann freigegeben hat, und der Workflow läuft mit dem nächsten Schritt weiter.
+
+**Ablehnen:** Es öffnet sich ein Popup für einen optionalen Grund. Danach:
+
+1. Der Schritt endet mit einem Fehler und der **Workflow bricht ab**. Kein späterer Schritt läuft, es wird also nichts gespeichert.
+2. Die **anfragende Person** bekommt eine DM mit Ablehnung und Grund, darunter klein der Text der Anfrage. Kann die DM nicht zugestellt werden (z. B. weil die Person Slack verlassen hat), schreibt der Bot einen Hinweis in den Thread der Anfrage, der auch im Channel erscheint: bitte persönlich informieren. Von dort springt man zur ursprünglichen Anfrage.
+3. Die Nachricht zeigt, wer wann abgelehnt hat, und den Grund.
+
+**Gleichzeitige Klicks:** Es gilt immer nur die erste Entscheidung. Wer danach noch auf **Freigeben** klickt, bekommt eine nur für ihn sichtbare Nachricht "Über diese Anfrage wurde bereits von jemand anderem entschieden". Wer danach eine Ablehnung abschickt, sieht diesen Hinweis im Popup. In beiden Fällen passiert sonst nichts, es gibt also keine doppelten DMs.
+
+Bei einer Freigabe bekommt die anfragende Person keine DM von diesem Schritt. Die Bestätigung schickt der Workflow selbst, wenn alles erledigt ist.
+
+**Formatierung im Text:** Den Text direkt im Feld schreiben und mit der Werkzeugleiste des Workflow Builders formatieren (fett, kursiv, Listen, Links, @-Erwähnungen). Das erscheint in der Anfrage genau so. Bei eingefügten **Variablen** ist das anders: Ihr Inhalt wird als reiner Text übernommen. Nur Erwähnungen (`<@…>`, `<#…>`) und `` `Code` `` werden darin umgewandelt. Steht in einer Variable z. B. `*fett*`, erscheinen die Sternchen in der Anfrage. Die Texte der Vereins-Schritte (z. B. *Nachricht zur Freigabe*) passen schon dazu.
+
+**Dateien:** Der Bot kann Dateien aus einem Formular nicht lesen. Deshalb die Datei vorher mit einem Schritt **Nachricht senden** in den Freigabe-Channel posten und dessen *Link zur Nachricht* bei *Thread-Nachricht* eintragen. Die Anfrage erscheint dann im Thread darunter und zusätzlich im Channel. Öffentliche Links, z. B. das PDF aus DocuSeal, einfach in den *Text* schreiben.
+
+Weil der Workflow bei einer Ablehnung abbricht, braucht man im Workflow Builder keine Verzweigung. Alles, was nach der Freigabe passieren soll, einfach als nächste Schritte anhängen. Im Aktivitätsprotokoll steht die Ablehnung als Fehler "Anfrage abgelehnt von …".
+
+::: tip Wer den Schritt verwenden kann
+Der Schritt sieht keine Vereinsdaten und ist deshalb für alle Mitglieder freigegeben, damit sie eigene Workflows mit Freigabe bauen können. Wie das aus Sicht der Mitglieder aussieht, steht in der [Anleitung für Mitglieder](./mitglieder#genehmigung-einholen).
+:::
+
+## Stammdaten ändern {#stammdaten-aendern}
+
+Mitglieder ändern Name, E-Mail, Telefonnummer oder Adresse in den Stammdaten ([Ablauf aus Sicht der Mitglieder](./mitglieder#stammdaten-aendern)). Die Änderung wird erst nach der Freigabe durch den Vorstand gespeichert.
+
+### Aufbau des Workflows {#stammdaten-aufbau}
+
+| # | Schritt | Einstellungen |
+| --- | --- | --- |
+| – | **Start** | per Link in Slack |
+| 1 | **Stammdaten ändern** | *Interaktivität*: die Interaktion, die den Workflow gestartet hat |
+| 2 | **Nachricht an eine Person senden** | an die Person, die den Workflow gestartet hat; Text: Variable *Nachricht an Mitglied* aus Schritt 1 |
+| 3 | **[Genehmigung einholen](#genehmigung)** | *Freigabe-Channel*: Vorstands-Channel; *Text*: Variable *Nachricht zur Freigabe* aus Schritt 1; *Anfragende Person*: die Person, die den Workflow gestartet hat |
+| 4 | **Stammdatenänderungen speichern** | *Mitglied* und alle Felder *Neuer Vorname*, *Neuer Nachname*, *Neue Email*, *Neue Telefonnummer*, *Neue Straße*, *Neue Hausnummer*, *Neuer Ort*, *Neue PLZ*: jeweils die gleichnamige Variable aus Schritt 1 |
+| 5 | **Nachricht an eine Person senden** | an die Person, die den Workflow gestartet hat: Änderungen wurden freigegeben und gespeichert |
+
+```mermaid
+sequenceDiagram
+  actor M as Mitglied
+  participant W as Workflow
+  participant B as Service Bot
+  participant S as Stammdaten<br/>(Google Sheet)
+  actor V as Vorstand
+  M->>W: Link öffnen
+  W->>B: Stammdaten ändern
+  B->>S: aktuelle Daten lesen
+  B-->>M: Popup mit aktuellen Daten
+  M->>B: Änderungen speichern
+  W->>M: DM: zur Freigabe weitergeleitet
+  W->>V: Genehmigung einholen
+  alt Freigeben
+    V->>W: Freigeben
+    W->>B: Stammdatenänderungen speichern
+    B->>S: geänderte Felder schreiben
+    W->>M: DM: gespeichert
+  else Ablehnen
+    V->>W: Ablehnen (mit Grund)
+    W->>M: DM: abgelehnt
+    Note over W: Workflow bricht ab
+  end
+```
+
+### Gut zu wissen {#stammdaten-admin-gut-zu-wissen}
+
+- Gesucht wird das Mitglied über seine **Slack-ID** in den Stammdaten. Fehlt sie, sieht das Mitglied "Du bist nicht als Mitglied registriert" und der Workflow bricht ab.
+- Gespeichert werden nur die Felder, die das Mitglied geändert hat. Die Nachrichten aus Schritt 1 listen sie als `Feld: alt ➡️ neu` auf.
+- Schließt das Mitglied das Popup, bricht der Workflow mit "Stammdaten ändern abgebrochen" ab.
+- Ist das Mitglied zwischen Anfrage und Freigabe aus den Stammdaten verschwunden, bricht **Stammdatenänderungen speichern** mit einem Fehler ab, statt still nichts zu speichern.
+- Eine geänderte E-Mail-Adresse wird auch für [Kontodaten ändern](#kontodaten-aendern) verwendet, dort geht das SEPA-Formular immer an die Adresse aus den Stammdaten.
+
 ## Kontodaten ändern {#kontodaten-aendern}
 
 Mitglieder ändern ihre Bankverbindung mit einem neu unterschriebenen SEPA-Mandat ([Ablauf aus Sicht der Mitglieder](./mitglieder#kontodaten-aendern)). Der Ablauf besteht aus **zwei Workflows**, die über die Unterschrift im Signatur-Service verbunden sind.
@@ -223,6 +313,79 @@ Wird gestartet, sobald das Mitglied das Formular in DocuSeal unterschrieben hat:
 | 5 | **Nachricht an das Mitglied** | sobald das To-Do erledigt ist: Änderung genehmigt |
 
 **Kontodaten speichern** prüft IBAN (inkl. Prüfziffer) und BIC und bricht bei Tippfehlern mit einer Fehlermeldung ab, statt falsche Daten zu speichern.
+
+## Neues Mitglied {#neues-mitglied}
+
+Neue Mitglieder füllen den Aufnahmeantrag mit SEPA-Mandat im Signatur-Service **DocuSeal** aus. Ist er unterschrieben, ruft DocuSeal einen Webhook des Legacy-Bots (AWS Lambda) auf. Der liest die Formularwerte aus und startet diesen Workflow per **Webhook-Trigger**. Der Workflow führt den Vorstand durch Aufnahme, Speichern in den Stammdaten und Anlage der Lastschrift.
+
+Nur für Admins: Den Workflow startet kein Mitglied, und der Schritt **Neues Mitglied speichern** ist nur für die App-Inhaber:innen freigegeben.
+
+```mermaid
+sequenceDiagram
+  actor N as Neues Mitglied
+  participant D as DocuSeal
+  participant L as Legacy-Bot<br/>(AWS Lambda)
+  participant W as Workflow
+  participant B as Service Bot
+  actor V as Vorstand
+  N->>D: Aufnahmeantrag ausfüllen, unterschreiben
+  D->>L: Webhook "Formular ausgefüllt"
+  L->>W: Workflow per Webhook starten
+  W->>V: Neuer Aufnahmeantrag, Link zum PDF
+  V->>W: Genehmigen
+  W->>N: E-Mail: aufgenommen
+  W->>B: Neues Mitglied speichern
+  B-->>V: Kontaktkarte im Admin-Channel
+  W->>V: To-Do: Slack und WhatsApp
+  W->>B: Aufnahmeantrag in Google Drive
+  W->>V: To-Do: Lastschrift anlegen
+  W->>V: Thread: Lastschrift anlegen + Button
+  V->>W: Erledigt, Datum 1. Lastschrift
+  W->>W: To-Do Lastschrift erledigt
+  W->>N: E-Mail: Datum, Beträge, Mandatsreferenz
+```
+
+### Aufbau des Workflows {#neues-mitglied-aufbau}
+
+| # | Schritt | Einstellungen |
+| --- | --- | --- |
+| – | **Start** | Webhook (vom Legacy-Bot). Die Formularwerte kommen als Text-Variablen |
+| 1 | **Nachricht an den Vorstand** | "Neuer Aufnahmeantrag von …", Link zum PDF des Antrags, Button **Genehmigen** |
+| 2 | **E-Mail senden** | an die E-Mail-Adresse aus dem Antrag: Aufnahme bestätigt |
+| 3 | **Neues Mitglied speichern** | siehe [unten](#neues-mitglied-schritt) |
+| 4 | **Element zur Liste hinzufügen** | [To-Do](#todos): Mitglied in Slack und WhatsApp aufnehmen, mit *Link zur Kontaktnachricht* aus Schritt 3 |
+| 5 | **Datei zu Google Drive hochladen** | *Öffentliche URL* des unterschriebenen Antrags aus dem Webhook, [Ordner](#google-drive) für Aufnahmeanträge |
+| 6 | **Element zur Liste hinzufügen** | [To-Do](#todos): Lastschrift für das neue Mitglied anlegen. *Message*: die Nachricht aus Schritt 1 |
+| 7 | **Im Thread antworten** | im Thread der Nachricht aus Schritt 1: Lastschrift anlegen für das Mitglied, Link auf die Mitgliedsdaten im Stammdaten-Sheet (SEPA-Daten), Button **Erledigt** |
+| 8 | **Formular** | nach Klick auf **Erledigt**: Kassenwart trägt das *Datum der ersten Lastschrift* ein |
+| 9 | **Listenelement aktualisieren** | To-Do aus Schritt 6 auf abgeschlossen setzen |
+| 10 | **E-Mail senden** | an das Mitglied: Datum der ersten Lastschrift, *Erstmaliger Einzugsbetrag*, *Wiederkehrender Betrag* und *Mandatsreferenz* aus Schritt 3 |
+
+### Schritt Neues Mitglied speichern {#neues-mitglied-schritt}
+
+Ein- und Ausgaben sind genau wie beim gleichnamigen Schritt des Legacy-Bots. Beim Umstieg im Workflow werden die Variablen also wie bisher zugeordnet.
+
+| Eingabe | Wert |
+| --- | --- |
+| *Beitrittsdatum*, *Geburtstag*, *Datum der Unterschrift* | aus dem Webhook. Werden unverändert ins Sheet geschrieben |
+| *Vorname*, *Nachname*, *E-Mail*, *Telefonnummer* | aus dem Webhook |
+| *Straße*, *Hausnummer*, *Postleitzahl*, *Wohnort* | aus dem Webhook |
+| *Geschlecht*, *Art der Mitgliedschaft* | aus dem Webhook |
+| *IBAN*, *BIC*, *Kontoinhaber* | aus dem Webhook. Das Format prüft schon das DocuSeal-Formular. Steht als Kontoinhaber der Name des Mitglieds, bleibt das Feld im Sheet leer |
+| *Admin Channel* | Channel, in den die Kontaktkarte geschickt wird |
+
+Was der Schritt macht:
+
+1. Er schreibt das Mitglied in die nächste freie Zeile von "Allg Daten" und "SEPA Daten".
+2. Danach postet er eine **Kontaktkarte** (`Vorname Nachname.vcf` mit Name, E-Mail und Telefonnummer) in den Admin Channel, mit dem Hinweis "Slack und WhatsApp einladen: Vorname Nachname".
+3. Er liest **Mandatsreferenz**, **Erstmaliger Einzugsbetrag** (ohne Aufnahmegebühr) und **Wiederkehrender Betrag** (halbjährlich) aus "SEPA Daten". Diese Werte berechnen Formeln im Sheet.
+
+Ausgaben: *Mandatsreferenz*, *Link zur Kontaktnachricht*, *Erstmaliger Einzugsbetrag*, *Wiederkehrender Betrag*.
+
+### Fehler {#neues-mitglied-fehler}
+
+- **"Fehler beim Speichern des neuen Mitglieds: …":** Das Sheet war nicht erreichbar oder der Upload der Kontaktkarte ist fehlgeschlagen. Ist schon das Speichern fehlgeschlagen, wurde auch keine Kontaktkarte gepostet.
+- **"Mandatsreferenz für … konnte nicht gelesen werden":** Das Mitglied ist schon gespeichert, aber die Formeln in "SEPA Daten" haben keine Werte geliefert. Zeile im Sheet prüfen. Den Workflow **nicht** neu starten, sonst wird das Mitglied ein zweites Mal angelegt.
 
 ## Austritt einplanen {#austritt}
 

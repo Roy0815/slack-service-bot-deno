@@ -6,6 +6,14 @@ export function formatSlackDate(date: string): string {
   return `${day}.${month}.${year}`;
 }
 
+/** HH:mm in German local time */
+export function formatTime(date: Date): string {
+  const dateString = date.toLocaleString("de-DE", {
+    timeZone: "Europe/Berlin",
+  });
+  return dateString.split(", ")[1].slice(0, 5);
+}
+
 export function today(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${

@@ -68,7 +68,7 @@ Die JSON-Datei ist ein Passwort. Nicht per Slack oder E-Mail verschicken und nac
    - eine Rolle `Mitglied`
    - Felder: `accountOwner`, `IBAN`, `BIC`, `signingDate`
 4. Die **Vorlagen-IDs** beider Vorlagen notieren (Zahl in der URL der Vorlage). Sie werden später im Workflow eingetragen, nicht im Bot.
-5. Unter **Settings → Webhooks** muss der Webhook des Legacy-Bots (AWS Lambda) für das Ereignis "form completed" eingetragen sein. Er startet nach der Unterschrift den Genehmigungs-Workflow für [Kontodaten-Änderungen](../anleitung/admins#kontodaten-workflow-2).
+5. Unter **Settings → Webhooks** muss der Webhook des Legacy-Bots (AWS Lambda) für das Ereignis "form completed" eingetragen sein. Er startet nach der Unterschrift den Genehmigungs-Workflow für [Kontodaten-Änderungen](../anleitung/admins#kontodaten-workflow-2) bzw. den Workflow [Neues Mitglied](../anleitung/admins#neues-mitglied).
 6. `DOCUSEAL_API_URL` bleibt leer, solange das Konto auf dem EU-Server liegt. Für ein Konto auf dem US-Server `https://api.docuseal.com` eintragen.
 
 ## 5. Secrets hinterlegen
