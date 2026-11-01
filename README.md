@@ -5,11 +5,11 @@ This is the new implementation of the
 to run it on Slack infrastructure in the Deno runtime.
 
 📖 **Dokumentation:**
-[roy0815.github.io/slack-service-bot-deno](https://roy0815.github.io/slack-service-bot-deno/)
+[schwerathletik-mannheim-2018-e-v.github.io/slack-service-bot-deno](https://schwerathletik-mannheim-2018-e-v.github.io/slack-service-bot-deno/)
 
-- [Anleitung](https://roy0815.github.io/slack-service-bot-deno/anleitung/mitglieder) -
+- [Anleitung](https://schwerathletik-mannheim-2018-e-v.github.io/slack-service-bot-deno/anleitung/mitglieder) -
   Nutzung für Mitglieder und Admins
-- [Technische Doku](https://roy0815.github.io/slack-service-bot-deno/technik/) -
+- [Technische Doku](https://schwerathletik-mannheim-2018-e-v.github.io/slack-service-bot-deno/technik/) -
   Einrichtung, Entwicklung und Referenz
 
 Development happens on `dev`, `main` is the production state.

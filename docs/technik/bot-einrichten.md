@@ -19,7 +19,7 @@ flowchart TD
 ## 1. Voraussetzungen
 
 - **Slack:** Workspace mit kostenpflichtigem Plan, Voraussetzung für Apps, die auf Slack laufen (der Verein nutzt den Nonprofit-Plan) und ein Konto mit Rechten zum Installieren von Apps.
-- **GitHub:** Zugriff auf das Repository [Roy0815/slack-service-bot-deno](https://github.com/Roy0815/slack-service-bot-deno).
+- **GitHub:** Zugriff auf das Repository [Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno](https://github.com/Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno).
 - **Google:** ein Google-Konto mit Zugriff auf die [Google Cloud Console](https://console.cloud.google.com/) und auf die Drive-Ordner des Vereins.
 - **DocuSeal:** ein Konto bei [DocuSeal](https://www.docuseal.com/) (der Verein nutzt den EU-Server `docuseal.eu`).
 

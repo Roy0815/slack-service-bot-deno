@@ -32,14 +32,15 @@ export default defineConfig({
     socialLinks: [
       {
         icon: "github",
-        link: "https://github.com/Roy0815/slack-service-bot-deno",
+        link:
+          "https://github.com/Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno",
       },
     ],
     search: { provider: "local" },
     docFooter: { next: "Nächste Seite", prev: "Vorherige Seite" },
     editLink: {
       pattern:
-        "https://github.com/Roy0815/slack-service-bot-deno/edit/dev/docs/:path",
+        "https://github.com/Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno/edit/dev/docs/:path",
       text: "Auf GitHub editieren",
     },
     nav: [
@@ -51,7 +52,8 @@ export default defineConfig({
       { text: "Technische Doku", link: "/technik/", activeMatch: "/technik/" },
       {
         text: "GitHub",
-        link: "https://github.com/Roy0815/slack-service-bot-deno",
+        link:
+          "https://github.com/Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno",
       },
     ],
     // Anleitung: je eine Seite für Mitglieder und Admins, beide Gruppen immer

@@ -15,7 +15,7 @@ hero:
       link: /technik/
     - theme: alt
       text: GitHub
-      link: https://github.com/Roy0815/slack-service-bot-deno
+      link: https://github.com/Schwerathletik-Mannheim-2018-e-V/slack-service-bot-deno
   image:
     light: /logo-sam-light.svg
     dark: /logo-sam-dark.svg
