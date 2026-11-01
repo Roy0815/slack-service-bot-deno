@@ -60,4 +60,4 @@ npm run docs:dev    # lokale Vorschau mit Live-Reload
 npm run docs:build  # Build wie in der Pipeline
 ```
 
-Die Doku wird bei jedem Push auf `main`, der `docs/` betrifft, per GitHub Action (`.github/workflows/deploy-docs.yml`) auf [GitHub Pages](https://roy0815.github.io/slack-service-bot-deno/) veröffentlicht. Sie beschreibt nur, was auf `main` live ist.
+Die Doku wird bei jedem Push auf `main`, der `docs/` betrifft, per GitHub Action (`.github/workflows/deploy-docs.yml`) auf [GitHub Pages](https://schwerathletik-mannheim-2018-e-v.github.io/slack-service-bot-deno/) veröffentlicht. Sie beschreibt nur, was auf `main` live ist.
